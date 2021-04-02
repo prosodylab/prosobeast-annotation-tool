@@ -1,0 +1,11 @@
+*.csv
+*.sqlite3
+*.wav
+dataset*/
+venv/
+__pycache__/
+figures/
+.spyproject/
+*swp
+*lock*
+*.log

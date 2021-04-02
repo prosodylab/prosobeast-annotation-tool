@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+{% block head %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+{% block content %}
+<p>
+  <br>
+</p>
+<div class="row justify-content-left">
+  <div class="col-1">
+    </div>
+    <div class="col-8">
+        <p>
+            Choose the methods used to calculate the data spread:
+        </p>
+        <p>
+            <form method="POST" enctype="multipart/form-data" id='calculate_spread'>
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+                <div class="row" style="margin-left: 5px;">
+                    <div class="column" style="margin-right: 20px;">
+                        <input type="checkbox" id="pca" name="choices[]"
+                        value="pca" onclick="check_clicked()"
+                         {% if sklearn_present %}
+                                               >   
+                        <label for="PCA">PCA</label>
+                        {% else %}
+                                               disabled>
+                        <label for="PCA">PCA (<i>Scikit-learn not
+                                available</i>)</label>
+                        {% endif %}                              
+                    </div>
+                    <div class="column">
+                        <img
+                            id="loading_pca"
+                            src="{{ url_for('static', filename='mit_loader.gif') }}" 
+                            style="display: none;"
+                            width="20px"
+                            />
+                    </div>
+                    <div class="column">
+                        <span id="span_pca" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-left: 5px;">
+                    <div class="column" style="margin-right: 20px;">
+                        <input type="checkbox" id="tsne" name="choices[]"
+                        value="tsne" onclick="check_clicked()"
+                         {% if sklearn_present %}
+                                               >   
+                        <label for="tsne">t-SNE</label>
+                        {% else %}
+                                               disabled>
+                        <label for="tsne">t-SNE (<i>Scikit-learn not
+                                available</i>)</label>
+                        {% endif %}                              
+                    </div>
+                    <div class="column">
+                        <img
+                            id="loading_tsne"
+                            src="{{ url_for('static', filename='mit_loader.gif') }}" 
+                            style="display: none;"
+                            width="20px"
+                            />
+                    </div>
+                    <div class="column">
+                        <span id="span_tsne" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-left: 5px;">
+                    <div class="column" style="margin-right: 20px;">
+                        <input type="checkbox" id="vae2d" 
+                                               name="choices[]"
+                                               value="vae2d"
+                                               onclick="check_clicked()"
+                         {% if torch_present %}
+                                               >   
+                         <label for="vae2d">VAE-2D</label>
+                        {% else %}
+                                               disabled>
+                        <label for="vae2d">VAE-2D  (<i>PyTorch not
+                                available</i>)</label>
+                        {% endif %}                              
+                    </div>
+                    <div class="column">
+                        <img
+                            id="loading_vae2d"
+                            src="{{ url_for('static', filename='mit_loader.gif') }}" 
+                            style="display: none;"
+                            width="20px"
+                            />
+                    </div>
+                    <div class="column">
+                        <span id="span_vae2d" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-left: 5px;">
+                    <div class="column" style="margin-right: 20px;">
+                        <input type="checkbox" id="vae4d" name="choices[]"
+                                                          value="vae4d"
+                                                  onclick="check_clicked()"
+                         {% if torch_present %}
+                                               >   
+                         <label for="vae4d">VAE-4D</label>
+                        {% else %}
+                                               disabled>
+                                               <label
+                                                   for="vae4d">VAE-4D  (<i>PyTorch not
+                                                       available</i>)</label>
+                        {% endif %}                              
+                    </div>
+                    <div class="column">
+                        <img
+                            id="loading_vae4d"
+                            src="{{ url_for('static', filename='mit_loader.gif') }}" 
+                            style="display: none;"
+                            width="20px"
+                            />
+                    </div>
+                    <div class="column">
+                        <span id="span_vae4d" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-left: 5px;">
+                    <div class="column" style="margin-right: 20px;">
+                        <input type="checkbox" id="rvae10d" name="choices[]"
+                                                          value="rvae10d"
+                                                  onclick="check_clicked()"
+                         {% if torch_present %}
+                                               >   
+                         <label for="rvae10d">RVAE-10D</label>
+                        {% else %}
+                                               disabled>
+                                               <label
+                                                   for="rvae10d">RVAE-10D  (<i>PyTorch not
+                                                       available</i>)</label>
+                        {% endif %}                              
+                    </div>
+                    <div class="column">
+                        <img
+                            id="loading_rvae10d"
+                            src="{{ url_for('static', filename='mit_loader.gif') }}" 
+                            style="display: none;"
+                            width="20px"
+                            />
+                    </div>
+                    <div class="column">
+                        <span id="span_rvae10d" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                    </div>
+                </div>
+
+
+                <br>
+                <div class="row" style="margin-left: 5px;">
+                    <button class="btn btn-primary" id="calculate_button"
+                        type="button" onclick="calculate()" style="background-color: #28a5e0; border-color: #1982b3" disabled> 
+                        Calculate
+                    </button>
+                    <span id="span_calculate" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                </div>
+
+                <br>
+                <div class="row" style="margin-left: 5px;">
+                    <button class="btn btn-primary" id="goback_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="go_back()">
+                        {% if goback == '/' %}
+                        Go to Prosobeast Annotation Tool
+                        {% else %}
+                        Go back to data upload
+                        {% endif %}
+                    </button>
+                    {# <span id="span_calculate" style="display: inline-block; margin: 0 10px 0 10px;"></span> #}
+                </div>
+
+            </form>
+        </p>
+    </div>
+</div>
+{% endblock %}
+{% block endscript %}
+
+<script type="text/javascript">
+
+    var choices = ['pca', 'tsne', 'vae2d', 'vae4d', 'rvae10d']
+    console.log({{ gobackjson | safe }})
+
+    function check_clicked(){
+        var data = { 'choices[]' : []};
+        $(":checked").each(function() {
+            data['choices[]'].push($(this).val());
+        });
+        var button = $("#calculate_button");
+        button.removeClass("bg-success");
+        button.removeClass("btn-success");
+        button.removeClass("border-success");
+        // if at least one is checked color button green
+        for (var spanref of choices){
+            var span = $("#span_" + spanref);
+            span.text('');
+        }
+        console.log(data);
+        console.log(data['choices[]'].length);
+        if (data['choices[]'].length > 0){
+            button.removeAttr('disabled');
+            // button.prop('disabled', false);
+        } else {
+            button.attr('disabled','disabled');
+            // button.prop('disabled', true);
+        };
+    };
+
+    function calculate(){
+        var data = { 'choices[]' : []};
+        $(":checked").each(function() {
+            data['choices[]'].push($(this).val());
+        });
+        var button = $("#calculate_button");
+        // clear all spans
+        for (var spanref of choices){
+            var span = $("#span_" + spanref);
+            span.text('');
+        }
+        console.log(data);
+        for (var choice of data['choices[]']){
+            console.log(choice)
+            var span = $("#span_" + choice);
+            // var loading = $('#loading_vae2d')
+            var loading = document.getElementById("loading_" + choice);
+            loading.style.display = "block";
+            // $('#loading_vae2d').hide()
+            span.text('Calculating ...')
+            calculate_spread_ajax(choice, "/calculate", button, span, loading);
+        } 
+    };
+
+    function calculate_spread_ajax(choice, url, element, span, loading){
+        $.ajax({
+            url: '/calculate',
+            type: "POST",
+            // data: JSON.stringify(data),
+            data: choice,
+            // async: true,
+            async: false,
+            processData: false,
+            // contentType: 'application/json;charset=UTF-8',
+            contentType: 'UTF-8',
+            cache: false,
+            success: function(response) {
+                console.log(response);
+                loading.style.display = "none";
+                span.text(response);
+                if (response.startsWith("Done!")){
+                    // TODO uncheck box
+                    to_green(element);
+                    span.removeClass("text-danger");
+                    span.addClass("text-success");
+                } else {
+                    to_red(element);
+                    span.removeClass("text-success");
+                    span.addClass("text-danger");
+                };
+            },
+            error: function(jqXHR, textStatus, errorMessage) {
+                console.log(errorMessage); // 
+                span.text(errorMessage);
+                to_red(element)
+                span.removeClass("text-success");
+                span.addClass("text-danger");
+            }
+        });
+        // console.log(uploaded);
+    };
+
+    function go_back() {
+        // window.history.back();
+        window.location.replace({{ gobackjson | safe }})
+    }
+
+</script>
+{% endblock %}

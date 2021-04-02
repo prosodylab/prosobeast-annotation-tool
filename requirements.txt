@@ -1,0 +1,6 @@
+numpy
+matplotlib
+pandas
+Flask==1.1.1
+Flask-SQLAlchemy>=2.5
+bokeh==2.2.1

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block head %}
+{# <link rel="stylesheet" href="{{ url_for('static', filename='css/bokeh-1.2.0.min.css') }}" type="text/css" /> #}
+{# <link rel="stylesheet" href="{{ url_for('static', filename='css/bokeh-widgets-1.2.0.min.css') }}" type="text/css" /> #}
+<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-2.2.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-widgets-2.2.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-tables-2.2.1.min.js') }}"></script>
+{{ plot_script | safe }}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+
+{% block content %}
+<audio id="audio" src="{{ url_for('static', filename='audio/ping.wav') }}" type="audio/wav"></audio>
+<div class="row">
+    <div class="col-10">
+        {{ plot_div | safe }}
+    </div>
+    <div class="col-2">
+        <p>
+            <input class="btn btn-primary" style="background-color: #28a5e0; border-color: #1982b3" type="button" value="Play audio"
+                                                                                                                  onclick="play()"
+                                                                                                                  id="play_btn">
+        </p>
+        <br>
+        <br>
+        <p>
+            <a class="btn btn-primary" style="background-color: #28a5e0; border-color: #1982b3" href="/reload_csv">Reload CSV</a>
+        </p>
+        <p>
+            <form method="POST" enctype="multipart/form-data" id="save_data">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <p>
+                    <button class="btn btn-primary" id="save_data_button" type="button" onclick="save_data()" style="background-color: #28a5e0; border-color: #1982b3">Save to CSV</button>
+                </p>
+        </p>
+        <p>
+            <a class="btn btn-primary" id="download_data_button" type="button" href="/download" style="background-color: #28a5e0; border-color: #1982b3">Download CSV</a>
+        </p>
+        <br>
+        <p>
+            <a class="btn btn-primary" id="add_data_spread_button" type="button" href="/data_spread" style="background-color: #28a5e0; border-color: #1982b3">Calculate new data spread</a>
+        </p>
+        <p>
+            <a class="btn btn-primary" id="delete_data_spread_button" type="button" style="background-color: #ffb3b3; border-color: #ff0000" onclick="delete_data_spread()">Delete current data spread</a>
+        </p>
+        <br>
+        <p>
+            <form method="POST" enctype="multipart/form-data" id="upload_new_csv_data">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <input type="file" name="file">
+                <br>
+                <p>
+                    <button class="btn btn-secondary" id="upload_new_csv_data_button" type="button" onclick="upload_new_csv_data()" >
+                        Upload new CSV for this data
+                    </button>
+                        <span id="span_new_data" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+                </p>
+            </form>
+        </p>
+        <br>
+        <p>
+            <button class="btn btn-secondary" id="upload_new_data_button" type="button" onclick="upload_new_data()" >
+                Upload new data
+            </button>
+                </a>
+        </p>
+
+    </div>
+</div>
+{% endblock %}
+{% block endscript %}
+<script type="text/javascript">
+    function linspace(startValue, stopValue, cardinality) {
+        var arr = [];
+        var step = (stopValue - startValue) / (cardinality - 1);
+        for (var i = 0; i < cardinality; i++) {
+            arr.push(startValue + (step * i));
+        }
+        return arr;
+    };
+
+    function calculate_new_spread(){
+        window.location.replace("/data_spread")
+    };
+  
+    function delete_data_spread(){
+        let group = Bokeh.documents[0].get_model_by_name('locations_group')
+        console.log(group.labels[group.active])
+        $.ajax({
+            url: '/delete_data_spread',
+            data: {'data_spread': group.labels[group.active]},
+            type: 'POST',
+            success: function(response){
+                console.log(response);
+                // if (response === "Success!"){
+                //deleted = true;
+                window.location.replace(response)
+                //} else {
+                //   deleted = false;
+                // }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            }
+        });
+        // this doesn't work because ajax is async ...
+        // console.log(deleted);
+        // if (deleted) {window.location.replace("/")};
+        // if (deleted) {window.location.reload(); return false};
+        // if (deleted) {window.location.href = window.location.href;};
+    };
+
+    function upload_new_csv_data(){
+        var uploaded = false;
+        var fd = new FormData($('#upload_new_csv_data')[0]);
+        fd.append("file", $('input[type=file]')[0].files[0]);
+        var button = $("#upload_new_csv_data_button");
+        var span = $("#span_new_data");
+        console.log(fd['file'])
+        uploaded = upload_formdata_ajax(fd, "/upload", button, span, uploaded)
+        if (uploaded) {window.location.replace("/")}
+    };
+
+    function upload_new_data(){
+        window.location.replace("/deletedb_init")
+    };
+
+    function save_data(){
+        $.ajax({
+            url: '/save_csv',
+            type: 'POST',
+            success: function(response){
+                console.log(response);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+        });
+        var button = $("#download_data_button");
+        var span = $("#span_download_data");
+        gray_to_blue(button);
+        span.text("Changes saved");
+    };
+
+    function play(){
+        var audioElement = document.getElementById("audio");
+        console.log(audioElement.src)
+        var promise = audioElement.play();
+        if (promise !== undefined) {
+            promise.then(_ => {
+                console.log('playing')
+            }).catch(error => {
+                console.log('playing error')
+                console.log(error)
+                console.log(error.message)
+            });
+        } else {
+            console.log('promise undefined:', promise)
+        }
+    };
+
+</script>
+{% endblock %}
