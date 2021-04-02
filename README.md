@@ -32,7 +32,7 @@ source venv/bin/activate  # activate environment
 pip install -r requirements.txt  # install dependencies
 ```
 
-You need to have [scikit-learn](https://scikit-learn.org/stable/) installed to calculate the PCA and t-SNE spreads.
+You need to have [scikit-learn](https://scikit-learn.org/stable/) installed to calculate the PCA and t-SNE spreads (see [Intonation Contour Distribution](README.md#intonation-contour-distribution)),
 You can install it via:
 ```
 pip install scikit-learn
