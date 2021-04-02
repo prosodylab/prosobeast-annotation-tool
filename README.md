@@ -7,13 +7,26 @@ A web app for annotating intonation patterns based on Bokeh and Flask.
 
 <img src="figures/main_screen.png" width="900px"/>
 
+
 The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech intonation data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
 
 There are currently two options for using the tool: using this git repository, or using a [Docker](https://www.docker.com/) container. Using the git version is a bit more involved, but will allow you to keep up to date with the latest code. The docker version should be easier to setup if your system is docker enabled.
 
 A heavier deployment option for the tool based on Django is also available for setup on a server environment.
 
-### Installing the Git version
+
+- [Install via Git](#install-via-git)
+- [Install via Docker](#install-via-docker)
+- [Usage](#usage)
+- [Intonation Contour Distribution](#intonation-contour-distribution)
+- [Sample Dataset](#sample-dataset)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [License](#license)
+
+<!-- tocstop -->
+
+## Install via Git
 
 Follow these steps to get the tool going:
 
@@ -63,11 +76,11 @@ This should output:
 
 To use the tool simply navigate to your http://localhost:5000 (i.e. http://127.0.0.1:5000/)
 
-### Installing the Docker image
+## Install via Docker
 
 ...
 
-### Usage
+## Usage
 
 The tool should default to the initialisation screen.
 
@@ -87,7 +100,7 @@ If color codes are not provided, the tool will automatically generate ones, fixi
 The init screen also allows you to optionally upload an audio folder containing the files referenced in your CSV. 
 This will allow playback of the audio files in the interactive visualisation.
 
-### Intonation Contour Distribution
+## Intonation Contour Distribution
 
 The annotation tool integrates a data spread calculation tool.
 
@@ -105,15 +118,29 @@ The integrated data spread calculation tool at the moment supports the following
 The user is automatically redirected to the data spread calculation tool if no location data is provided in the user table. 
 The tool can also be accessed from the main screen to add new data spreads for the data.
 
-### Contributing
+## Sample Dataset
+
+The tool can be tested via this sample dataset:
+
+- Branislav Gerazov, Michael Wagner, "Pitch contours from subset of Intonational Bestiary," 2021, DOI: 10.5281/zenodo.4660054, Available: (https://zenodo.org/record/4660054)
+
+
+The dataset comprises pitch contours extracted from a subset of the Intonational Bestiary dataset:
+
+- M. Wagner and D. Goodhue, “Toward a bestiary of English intonational tunes: Data,” 2021, OSF Project. Available: https://doi.org/10.17605/OSF.IO/H8DYA
+
+The pitch contours have been extracted in 2 iterations and have been sampled at 5 equidistant points in the nuclei of interest (NOI) of the stressed syllables of the content words in the carrier sentences. The pitch values for the 3 NOI and 4 NOI utterances are provided separately and together. The data includes labels given to the utterances by the annotators in the original data; a list of all the labels used is also provided. Audio files are provided for convenience.
+
+
+## Contributing
 
 Any feature requests and bug reports can be submitted through the Issues tracker of this repository. Alternatively, fixes and enhancements can be submitted through Pull requests. Comments and contributions are welcome!
 
 
-### Credits
+## Credits
 
-The development of the ProsoBeast Annotation Tool has been fully funded by a research grant from [prosody.lab](http://prosodylab.org/), McGill University, Montreal, Canada
+The development of the ProsoBeast Annotation Tool has been carried out through the collaboration of research grant from [prosody.lab](http://prosodylab.org/), McGill University, Montreal, Canada
 
-### License
+## License
 
 The ProsoBeast Annotation Tool is licensed under the GNU GPL v.3, see the `LICENSE` file for details.
