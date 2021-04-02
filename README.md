@@ -92,6 +92,9 @@ This will allow playback of the audio files in the interactive visualisation.
 ### Intonation Contour Distribution
 
 The annotation tool integrates a data spread calculation tool.
+
+<img src="figures/data_screen.png" width="900px"/>
+
 The distribution of the contours in the *intonation space* can be calculated in various ways.
 If your intonation vectors have fixed length, then you can use [PCA](https://scikit-learn.org/stable/modules/decomposition.html#pca) or even better [t-SNE](https://scikit-learn.org/stable/modules/manifold.html#t-sne).
 For our analyses we use a more complex pipeline in which we first map out a *prosodic latent space* akin to the one defined in the [ProsoDeep project](https://gerazov.github.io/prosodeep/) and then do dimensionality reduction.
