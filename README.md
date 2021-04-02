@@ -7,7 +7,7 @@ A web app for annotating intonation patterns based on Bokeh and Flask.
 
 <img src="figures/main_screen.png" width="900px"/>
 
-The Prosobeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech intonation data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
+The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech intonation data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
 
 There are currently two options for using the tool: using this git repository, or using a [Docker](https://www.docker.com/) container. Using the git version is a bit more involved, but will allow you to keep up to date with the latest code. The docker version should be easier to setup if your system is docker enabled.
 
@@ -32,18 +32,16 @@ source venv/bin/activate  # activate environment
 pip install -r requirements.txt  # install dependencies
 ```
 
-You need to have [scikit-learn](https://scikit-learn.org/stable/) installed to calculate the PCA and t-SNE spreads (see [Intonation Contour Distribution](README.md#intonation-contour-distribution)),
-You can install it via:
+In order to use the integrated data spread calculation tool (see [Intonation Contour Distribution](README.md#intonation-contour-distribution)) you need to additionally install:
+- [scikit-learn](https://scikit-learn.org/stable/) - to calculate the PCA and t-SNE spreads:
 ```
 pip install scikit-learn
 ```
-In addition you need [PyTorch](https://pytorch.org/) for the VAE model training.
-To have it run on your GPU you also need CUDA and cudnn on your system.
-PyTorch can bee installed via:
+- [PyTorch](https://pytorch.org/) for the VAE model training via: 
 ```
 pip install pytorch
 ```
-However, it is recommended to find the version appropriate to your CUDA version through the PyTorch website.
+To have it run on your GPU you also need CUDA and `cudnn` on your system. It is highly recommended to install the PyTorch version appropriate to your CUDA version through their website!
 
 3. Setup and run Flask on localhost:
 
@@ -114,8 +112,8 @@ Any feature requests and bug reports can be submitted through the Issues tracker
 
 ### Credits
 
-The development of the Prosobeast Annotation Tool has been fully funded by a research grant from [prosody.lab](http://prosodylab.org/), McGill University, Montreal, Canada
+The development of the ProsoBeast Annotation Tool has been fully funded by a research grant from [prosody.lab](http://prosodylab.org/), McGill University, Montreal, Canada
 
 ### License
 
-The Prosobeast Annotation Tool is licensed under the GNU GPL v.3, see the `LICENSE` file for details.
+The ProsoBeast Annotation Tool is licensed under the GNU GPL v.3, see the `LICENSE` file for details.
