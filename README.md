@@ -122,7 +122,7 @@ The tool can also be accessed from the main screen to add new data spreads for t
 
 The tool can be tested via this sample dataset:
 
-- Branislav Gerazov, Michael Wagner, "Pitch contours from subset of Intonational Bestiary," 2021, DOI: 10.5281/zenodo.4660054, Available: (https://zenodo.org/record/4660054)
+- Branislav Gerazov, Michael Wagner, "Pitch contours from subset of Intonational Bestiary," 2021, DOI: 10.5281/zenodo.4660054, Available: https://zenodo.org/record/4660054
 
 
 The dataset comprises pitch contours extracted from a subset of the Intonational Bestiary dataset:
