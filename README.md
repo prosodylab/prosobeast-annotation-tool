@@ -139,7 +139,7 @@ Any feature requests and bug reports can be submitted through the Issues tracker
 
 ## Credits
 
-The development of the ProsoBeast Annotation Tool has been carried out through the collaboration of research grant from [prosody.lab](http://prosodylab.org/), McGill University, Montreal, Canada
+The development of the ProsoBeast Annotation Tool has been carried out through the collaboration of the [Faculty of Electrical Engineering and Information Technologies](https://feit.ukim.edu.mk/en/), [Ss Cyril and Methodius University in Skopje](http://www.ukim.edu.mk/en_index.php), Macedonia and the [prosody.lab](http://prosodylab.org/), at [McGill University](https://www.mcgill.ca/), Montreal, Canada
 
 ## License
 
