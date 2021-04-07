@@ -3,7 +3,7 @@
     <img src="figures/tool_name.svg" width="500px">
 </h1>
 
-A web app for annotating intonation patterns based on Bokeh and Flask.
+**A web app for annotating intonation patterns based on Bokeh and Flask.**
 
 <img src="figures/main_screen.png" width="900px"/>
 
@@ -132,6 +132,15 @@ The dataset comprises pitch contours extracted from a subset of the Intonational
 The pitch contours have been extracted in 2 iterations and have been sampled at 5 equidistant points in the nuclei of interest (NOI) of the stressed syllables of the content words in the carrier sentences. The pitch values for the 3 NOI and 4 NOI utterances are provided separately and together. The data includes labels given to the utterances by the annotators in the original data; a list of all the labels used is also provided. Audio files are provided for convenience.
 
 
+## References
+
+The tool is described in this paper:
+
+Branislav Gerazov and Michael Wagner, "ProsoBeast Prosody Annotation Tool," submitted to Interspeech 2021, Aug 30 - Sep 3, Brno, Czechia, 2021. Preprint available on arXiv: https://arxiv.org/abs/2104.02397
+
+
+
+
 ## Contributing
 
 Any feature requests and bug reports can be submitted through the Issues tracker of this repository. Alternatively, fixes and enhancements can be submitted through Pull requests. Comments and contributions are welcome!
@@ -139,7 +148,9 @@ Any feature requests and bug reports can be submitted through the Issues tracker
 
 ## Credits
 
-The development of the ProsoBeast Annotation Tool has been carried out through the collaboration of the [Faculty of Electrical Engineering and Information Technologies](https://feit.ukim.edu.mk/en/), [Ss Cyril and Methodius University in Skopje](http://www.ukim.edu.mk/en_index.php), Macedonia and the [prosody.lab](http://prosodylab.org/), at [McGill University](https://www.mcgill.ca/), Montreal, Canada
+The development of the ProsoBeast Annotation Tool has been carried out through the collaboration of the [Faculty of Electrical Engineering and Information Technologies](https://feit.ukim.edu.mk/en/), [Ss Cyril and Methodius University in Skopje](http://www.ukim.edu.mk/en_index.php), Macedonia and [prosody.lab](http://prosodylab.org/), at [McGill University](https://www.mcgill.ca/), Montreal, Canada. 
+The design and implementation of the tool was funded by NSERC Grant RGPIN-2018-06153: *Three dimensions of sentence prosody* to the second author.
+
 
 ## License
 

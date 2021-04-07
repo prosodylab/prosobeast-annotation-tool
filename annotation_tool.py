@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Lightweight annotation tool done in Flask.
+ProsoBeast annotation tool.
 
 Created on Sat Feb 8 2020
 
@@ -14,10 +14,8 @@ from flask import (
     Flask, render_template, redirect, request, Response, send_file, abort
     )
 from flask_sqlalchemy import SQLAlchemy
-# from werkzeug.utils import secure_filename
 
 import annotation_utils as utils
-# sys.path.append('./data_spread_tool')
 from data_spread import calculate_data_spread
 
 app = Flask(__name__)
@@ -87,10 +85,8 @@ def home(location=None):
                 location = request.args['location']
             else:
                 location = None
-            print('location', location)
             # locations = [x.labels for x in Locations.query.all()]
             locations = locations_df.labels.to_list()
-            print('locations', locations)
             plot_script, plot_div = utils.plot(location=location)
             return render_template(
                     'annotate.html',

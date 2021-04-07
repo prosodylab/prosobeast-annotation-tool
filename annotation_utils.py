@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Utility funcstions for the Lightweight annotation tool done in Flask.
+Utility functions for the ProsoBeast annotation tool.
 
 Created on Sat Feb 8 2020
 
@@ -52,21 +52,6 @@ def upload_csv_to_db(file_name, sql_table_name, check_nans=True):
         # save location labels to database
         update_locations_db(location_labels, 'locations')
 
-        # # new DataFrame to have all locations in a single column as a
-        # # dictionary
-        # # I'm not sure it's the right way to go ...
-        # # source_df_locs = source_df.copy()
-        # # first aggregate all locations in a dictionary
-        # for i, r in source_df.iterrows():
-        #     locations_dict = {}
-        #     for col, label in zip(columns_loc, location_labels):
-        #         locations_dict[label] = json.loads(r[col].replace('"', ''))
-        #     source_df.loc[i, 'locations_dict'] = json.dumps(locations_dict)
-
-        # # now drop all original location columns
-        # for c in columns_loc:
-        #     source_df.drop(columns=c, inplace=True)
-
     # save to database
     update_db_table_from_df(df, sql_table_name, jsonify=False)
 
@@ -78,7 +63,6 @@ def update_db_table_from_df(source_df, sql_table_name, jsonify=True):
     """
     # necessary - otherwise source_df is altered
     source_df = source_df.copy()
-    # # TODO jsonify before writing to db
     if jsonify:
         for col in ['f0', 'x', 'y']:
             if col in source_df.columns:
@@ -111,7 +95,6 @@ def load_df_from_db_table(sql_table_name, unjsonify=False):
     engine = create_engine('sqlite:///prosobeast.sqlite3')
     with engine.connect() as con:
         df = pd.read_sql(sql_table_name, con)
-    # # TODO unjsonify read data from db
     if unjsonify:
         cols = (
             ['f0', 'x', 'y']
@@ -185,13 +168,9 @@ def load_database(location=None):
         source_df, location_labels,
         location=location,
         )
-    # print(source_df.x[0])
-    # print(type(source_df.x[0]))
     update_db_table_from_df(source_df, 'prosobeast', jsonify=True)
     labels = labels_df.label.tolist()
     colors = labels_df.color.tolist()
-    # print(source_df.x[0])
-    # print(type(source_df.x[0]))
     return (
         source_df, labels, colors,
         location_labels, xs_df, ys_df, scales_dict
@@ -208,13 +187,10 @@ def update_db_colors():
     labels = labels_df.label.tolist()
     colors = labels_df.color.tolist()
     labels_colors = dict(zip(labels, colors))
-    # print('labels dict', labels_colors)
     source_df['color'] = source_df.label.map(
         lambda x: labels_colors[x]
         )
     update_db_table_from_df(source_df, 'prosobeast', jsonify=False)
-    # source_df.drop(columns='id', inplace=True)
-    # source_df.to_csv('prosobeast.csv', index=False)
 
 
 def update_db_contour_locs(
@@ -273,9 +249,6 @@ def update_db_contour_locs(
         xs_df[label] = source_df.length.map(
             lambda x: np.linspace(-1, 1, x) * (x/min_len) * x_scale
             )
-        # xs_df[label] += source_df.locations_dict.map(
-        #     lambda loc: json.loads(loc)[label][0]
-        #     )
         xs_df[label] += source_df[source_label].map(
             lambda loc: json.loads(loc)[0]
             )
@@ -283,9 +256,6 @@ def update_db_contour_locs(
         ys_df[label] = source_df.f0.map(
             lambda y: y * y_scale
             )
-        # ys_df[label] += source_df.locations_dict.map(
-        #     lambda loc: json.loads(loc)[label][1]
-        #     )
         ys_df[label] += source_df[source_label].map(
             lambda loc: json.loads(loc)[1]
             )
@@ -340,11 +310,6 @@ def plot(location=None):
     if location is None:
         location = location_labels[0]
     print(location)
-    # print(source_df)
-    # print(source_df.dtypes)
-    # print(source_df.x[0])
-    # print(type(source_df.x[0]))
-    # print(list(zip(labels, colors)))
     source = ColumnDataSource(source_df)
     xs = ColumnDataSource(xs_df)
     ys = ColumnDataSource(ys_df)
@@ -358,7 +323,6 @@ def plot(location=None):
     active = location_labels.index(location)
     locations_group = RadioButtonGroup(
         labels=location_labels, active=active, name='locations_group'
-        # orientation='vertical'
         )
 
     x_scale, y_scale = scales_dict[location]
@@ -372,7 +336,7 @@ def plot(location=None):
         title='y scale'
         )
 
-    with open('bokeh_plot_onclick.js', 'r') as f:
+    with open('bokeh_js/bokeh_plot_onclick.js', 'r') as f:
         code = f.read()
     source.selected.js_on_change(
         'indices',
@@ -385,7 +349,7 @@ def plot(location=None):
                 code=code
                 )
         )
-    with open('bokeh_label_onchange.js', 'r') as f:
+    with open('bokeh_js/bokeh_label_onchange.js', 'r') as f:
         code = f.read()
     labels_group.js_on_change(
         'active',
@@ -399,7 +363,7 @@ def plot(location=None):
             )
         )
 
-    with open('bokeh_locations_onchange.js', 'r') as f:
+    with open('bokeh_js/bokeh_locations_onchange.js', 'r') as f:
         code = f.read()
     locations_group.js_on_change(
         'active',
@@ -418,7 +382,7 @@ def plot(location=None):
             )
         )
 
-    with open('bokeh_x_slider_onchange.js', 'r') as f:
+    with open('bokeh_js/bokeh_x_slider_onchange.js', 'r') as f:
         code = f.read()
     x_slider.js_on_change(
         'value',
@@ -436,7 +400,7 @@ def plot(location=None):
             code=code
             )
         )
-    with open('bokeh_y_slider_onchange.js', 'r') as f:
+    with open('bokeh_js/bokeh_y_slider_onchange.js', 'r') as f:
         code = f.read()
     y_slider.js_on_change(
         'value',
@@ -459,10 +423,8 @@ def plot(location=None):
         column(
             row(
                 locations_group,
-                # Spacer(sizing_mode='fixed', width=10),
                 ),
             row(
-                # ),
                 x_slider,
                 y_slider,
                 ),

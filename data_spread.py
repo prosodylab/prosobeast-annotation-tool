@@ -37,13 +37,9 @@ try:  # won't work if there is no sklearn
 except ImportError:
     print('No scikit-learn installed!')
 
-# utility functions
-# from data_spread_tool import data_spread_utils as utils
-# try:  # won't work if there is no torch
+# for these you need PyTorch
 from data_spread_tool import data_vae_utils as vae_utils
 from data_spread_tool import data_vae_params as vae_params
-# except ImportError:
-#     print("Couldn't import data spread utils and params")
 
 
 def load_data(data):
