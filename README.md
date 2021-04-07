@@ -20,6 +20,7 @@ A heavier deployment option for the tool based on Django is also available for s
 - [Usage](#usage)
 - [Intonation Contour Distribution](#intonation-contour-distribution)
 - [Sample Dataset](#sample-dataset)
+- [References](#references)
 - [Contributing](#contributing)
 - [Credits](#credits)
 - [License](#license)
@@ -136,9 +137,7 @@ The pitch contours have been extracted in 2 iterations and have been sampled at 
 
 The tool is described in this paper:
 
-Branislav Gerazov and Michael Wagner, "ProsoBeast Prosody Annotation Tool," submitted to Interspeech 2021, Aug 30 - Sep 3, Brno, Czechia, 2021. Preprint available on arXiv: https://arxiv.org/abs/2104.02397
-
-
+- Branislav Gerazov and Michael Wagner, "ProsoBeast Prosody Annotation Tool," submitted to Interspeech 2021, Aug 30 - Sep 3, Brno, Czechia, 2021. Preprint available on arXiv: https://arxiv.org/abs/2104.02397
 
 
 ## Contributing
