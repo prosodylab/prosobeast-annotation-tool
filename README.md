@@ -12,9 +12,6 @@ The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and u
 
 There are currently two options for using the tool: using this git repository, or using a [Docker](https://www.docker.com/) container. Using the git version is a bit more involved, but will allow you to keep up to date with the latest code. The docker version should be easier to setup if your system is docker enabled.
 
-A heavier deployment option for the tool based on Django is also available for setup on a server environment.
-
-
 - [Install via Git](#install-via-git)
 - [Install via Docker](#install-via-docker)
 - [Usage](#usage)
@@ -79,7 +76,7 @@ To use the tool simply navigate to your http://localhost:5000 (i.e. http://127.0
 
 ## Install via Docker
 
-...
+To be updated soon ...
 
 ## Usage
 
