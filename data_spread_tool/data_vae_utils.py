@@ -8,18 +8,13 @@ VAE training utility functions for Data spread calculation.
 import numpy as np
 try:
     import torch
+    from data_spread_tool import data_vae_models as vae_models
 except ImportError:
     print('No PyTorch installed!')
 try:
     from sklearn.model_selection import ShuffleSplit, train_test_split
 except ImportError:
     print('No sklearn installed!')
-try:
-    # for running from parent dir
-    from data_spread_tool import data_vae_models as vae_models
-except ImportError:
-    # for running from current
-    import data_vae_models as vae_models
 
 
 def init_model(params):
