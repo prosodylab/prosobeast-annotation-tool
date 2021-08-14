@@ -10,7 +10,10 @@ try:
     import torch
 except ImportError:
     print('No PyTorch installed!')
-from sklearn.model_selection import ShuffleSplit, train_test_split
+try:
+    from sklearn.model_selection import ShuffleSplit, train_test_split
+except ImportError:
+    print('No sklearn installed!')
 try:
     # for running from parent dir
     from data_spread_tool import data_vae_models as vae_models

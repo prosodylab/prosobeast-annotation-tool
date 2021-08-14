@@ -31,7 +31,7 @@ Follow these steps to get the tool going:
 1. Download or clone this git repository:
 
 ```bash
-git clone https://github.com/gerazov/prosobeast-annotation-tool.git
+git clone https://github.com/prosodylab/prosobeast-annotation-tool.git
 ```
 
 2. Install the necessary dependencies for the Python code in a virtual environment of your choice (the built-in `venv` is used in this example):
