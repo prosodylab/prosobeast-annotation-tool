@@ -10,10 +10,9 @@
 
 The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech intonation data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
 
-There are currently two options for using the tool: using this git repository, or using a [Docker](https://www.docker.com/) container. Using the git version is a bit more involved, but will allow you to keep up to date with the latest code. The docker version should be easier to setup if your system is docker enabled.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/I7Wk5zTwbmY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-- [Install via Git](#install-via-git)
-- [Install via Docker](#install-via-docker)
+- [Install](#install)
 - [Usage](#usage)
 - [Intonation Contour Distribution](#intonation-contour-distribution)
 - [Sample Dataset](#sample-dataset)
@@ -24,7 +23,7 @@ There are currently two options for using the tool: using this git repository, o
 
 <!-- tocstop -->
 
-## Install via Git
+## Install
 
 Follow these steps to get the tool going:
 
@@ -73,10 +72,6 @@ This should output:
 ```
 
 To use the tool simply navigate to your http://localhost:5000 (i.e. http://127.0.0.1:5000/)
-
-## Install via Docker
-
-To be updated soon ...
 
 ## Usage
 
