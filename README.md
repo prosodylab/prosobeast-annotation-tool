@@ -10,7 +10,8 @@
 
 The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech intonation data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/I7Wk5zTwbmY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+Watch the short video demo [here](https://www.youtube.com/embed/I7Wk5zTwbmY).
+
 
 - [Install](#install)
 - [Usage](#usage)
