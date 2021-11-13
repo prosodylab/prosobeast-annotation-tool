@@ -9,3 +9,5 @@ figures/
 *swp
 *lock*
 *.log
+pkls/
+temp*
