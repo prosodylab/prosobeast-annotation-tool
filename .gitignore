@@ -10,3 +10,4 @@ figures/
 *lock*
 *.log
 pkls/
+temp*
