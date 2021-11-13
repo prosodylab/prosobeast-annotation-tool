@@ -87,6 +87,8 @@ Here you can upload your intonation data using a CSV file. The CSV file should c
 - location (optional) - the 2D location of the contour in the intonation space (see [Intonation Contour Distribution](README.md#intonation-contour-distribution)),
 - f0 - a list of the $f_0$ values to be plotted.
 
+To extract and sample the $f_0$ contours with the Pitch Extraction Tool via the master script `pitch_extract_tool/pitch_extract_master_script.py`.
+
 Another CSV file is needed by the system that will specify the label choices you want to use for your data. 
 This CSV file can optionally specify the color codes you want to use for your labels.
 If color codes are not provided, the tool will automatically generate ones, fixing grey for the `No label` class.
