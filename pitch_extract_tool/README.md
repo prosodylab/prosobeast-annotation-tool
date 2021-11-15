@@ -98,12 +98,6 @@ The histograms for these two speakers above - `1543` and `1451` are:
 
 The selection process will discard the following two contours:
 
-- `contour_1645_5_2`
-<img alt="contour_1645_5_2" src="figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png" width="400px" />
-
-- `contour_1646_4_1`
-<img alt="contour_1646_4_1" src="figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png" width="400px" />
-
 ```
  44%|██████████████████████▌                            | 133/300 [00:43<00:49,  3.37it/s]
 > contour_1645_5_2 did not pass pov check NOI 2 perc 0.4642857142857143
@@ -113,6 +107,12 @@ The selection process will discard the following two contours:
 
 100%|███████████████████████████████████████████████████| 300/300 [01:35<00:00,  3.13it/s]
 ```
+
+- `contour_1645_5_2`
+<img alt="contour_1645_5_2" src="figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png" width="400px" />
+
+- `contour_1646_4_1`
+<img alt="contour_1646_4_1" src="figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png" width="400px" />
 
 ### Contour sampling 
 
