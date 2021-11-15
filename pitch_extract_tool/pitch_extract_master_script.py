@@ -80,11 +80,15 @@ textgrid_path = f"{data_path}/textgrids"
 
 # output paths
 good_csv_name = f"{data_path}/prosobeast_good_f0s.csv"
-pkl_path = "pkls/"
-plot_path = "figures/pitch_analysis/"
-good_plot_path= plot_path + "good_f0s/"
+pkl_path = "pkls"
+plot_path = "figures"
+f0_plot_path= f"{plot_path}/f0s"
+hist_plot_path= f"{plot_path}/hists"
+good_plot_path= f"{plot_path}/good_f0s"
 os.makedirs(pkl_path, exist_ok=True)
 os.makedirs(plot_path, exist_ok=True)
+os.makedirs(f0_plot_path, exist_ok=True)
+os.makedirs(hist_plot_path, exist_ok=True)
 os.makedirs(good_plot_path, exist_ok=True)
 
 # ## tool parameters
@@ -102,12 +106,13 @@ tier_phones_sil_end = True
 do_1st_pass = True
 do_bound_extraction = True
 do_2nd_pass = True
+
 # f0 bounds for first pass, tweak max if necessary
-# f0_min_init = 75
 f0_min_init = 60  # Hirst's suggested min
-# f0_max_init = 450
-# f0_max_init = 600
+# f0_min_init = 75
 f0_max_init = 750  # Hirst's suggested max
+# f0_max_init = 450  # for male speakers
+# f0_max_init = 600
 
 # probability of voicing thresholding for f0 extracted by Kaldi
 # 0.5 seems too restrictive, 0.2 is about right
@@ -193,9 +198,6 @@ if do_1st_pass:
         pickle.dump(df_f0_params, f, -1)
 
     # %%% get the f0s and plot them
-    if do_plots:
-        local_plot_path = f"{plot_path}/kaldi_f0s"
-        os.makedirs(local_plot_path, exist_ok=True)
     f0s_speakers_kaldi_1st = {}  # dict of f0s per speaker
     noi_f0s_kaldi_1st = {}  # dict of noi f0s
     noi_povs_kaldi_1st = {}  # dict of noi povs
@@ -267,7 +269,7 @@ if do_1st_pass:
         if do_plots:
             ax = utils.add_f0_contour(ax, ts, f0s, ts_pov, f0s_pov)
             save_name = (
-                f"{local_plot_path}/f0_{file_name}_"
+                f"{f0_plot_path}/f0_{file_name}_"
                 f"1st_pass_{f0_min_init}_{f0_max_init}.png"
                 )
             utils.format_and_save_plot(
@@ -293,9 +295,6 @@ if do_bound_extraction:
         (f0s_speakers_kaldi_1st, noi_f0s_kaldi_1st, noi_povs_kaldi_1st,
          f0_min_init, f0_max_init) = data
 
-    if do_plots:
-        local_plot_path = f"{plot_path}/kaldi_histograms"
-        os.makedirs(local_plot_path, exist_ok=True)
     f0_stats_kaldi = {}
     for speaker in tqdm(list(f0s_speakers_kaldi_1st.keys()), ncols=90):
         f0s_vec = f0s_speakers_kaldi_1st[speaker]
