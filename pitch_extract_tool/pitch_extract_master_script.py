@@ -308,7 +308,7 @@ if do_bound_extraction:
         data_f0_bounds_hirst.loc[speaker, "kaldi_max"] = f0_max_hirst
         #% plot histogram
         if do_plots:
-            plot_name = f"{local_plot_path}/f0_histogram_speaker_{speaker}.png"
+            plot_name = f"{hist_plot_path}/f0_histogram_speaker_{speaker}.png"
             utils.plot_histogram(
                 f0s_vec, f0_mean, f0_median, f0_kde, f0_min_hirst, f0_max_hirst,
                 speaker, plot_name, show_plots=show_plots,
@@ -331,9 +331,6 @@ if not do_bound_extraction:
     data_f0_bounds_hirst, f0_stats_kaldi, f0_min_init, f0_max_init = data
 
 if do_2nd_pass:
-    if do_plots:
-        local_plot_path = f"{plot_path}/kaldi_f0s"
-        os.makedirs(local_plot_path, exist_ok=True)
     f0s_speakers_kaldi_2nd = {}  # dict of f0s per speaker
     f0s_file_kaldi_2nd = {}  # dict of f0s per file
     ts_file_kaldi_2nd = {}  # dict of f0s per file
@@ -417,7 +414,7 @@ if do_2nd_pass:
         if do_plots:
             ax = utils.add_f0_contour(ax, ts, f0s, ts_pov, f0s_pov)
             save_name = (
-                f"{local_plot_path}/f0_{file_name}_"
+                f"{f0_plot_path}/f0_{file_name}_"
                 f"2nd_pass_{f0_min_init}_{f0_max_init}.png"
                 )
             utils.format_and_save_plot(
