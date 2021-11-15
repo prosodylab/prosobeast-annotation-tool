@@ -71,38 +71,38 @@ The results here have been obtained when running the Pitch Extract Tool on the s
 The pitch contours are improved in the 2nd pass in general, e.g. for `contour_1543_9_3` we get:
 
 - First pass
-<img alt="contour_1543_9_3_1st" src="figures/sample_results/f0_contour_1543_9_3_1st_pass_75_600.png" width="200px" />
+<img alt="contour_1543_9_3_1st" src="figures/sample_results/f0_contour_1543_9_3_1st_pass_75_600.png" width="400px" />
 
 - Second pass
-<img alt="contour_1543_9_3_2nd" src="figures/sample_results/f0_contour_1543_9_3_2nd_pass_75_600.png" width="200px" />
+<img alt="contour_1543_9_3_2nd" src="figures/sample_results/f0_contour_1543_9_3_2nd_pass_75_600.png" width="400px" />
 
 But it does degrade others, e.g. `contour_1451_8_1`:
 
 - First pass
-<img alt="contour_1451_8_1_1st" src="figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png" width="200px" />
+<img alt="contour_1451_8_1_1st" src="figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png" width="400px" />
 
 - Second pass
-<img alt="contour_1451_8_1_2nd" src="figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png" width="200px" />
+<img alt="contour_1451_8_1_2nd" src="figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png" width="400px" />
     
 ### Histograms
 
 The histograms for these two speakers `1543` and `1451` are:
 
 - Speaker `1543`
-<img alt="histogram_1543" src="figures/sample_results/f0_histogram_speaker_1543.png" width="200px" />
+<img alt="histogram_1543" src="figures/sample_results/f0_histogram_speaker_1543.png" width="400px" />
 
 - Speaker `1451`
-<img alt="histogram_1451" src="figures/sample_results/f0_histogram_speaker_1451.png" width="200px" />
+<img alt="histogram_1451" src="figures/sample_results/f0_histogram_speaker_1451.png" width="400px" />
 
 ### Contour selection
 
 The selection process will in turn two of the contours:
 
 - `contour_1645_5_2`
-<img alt="contour_1645_5_2" src="figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png" width="200px" />
+<img alt="contour_1645_5_2" src="figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png" width="400px" />
 
 - `contour_1646_4_1`
-<img alt="contour_1646_4_1" src="figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png" width="200px" />
+<img alt="contour_1646_4_1" src="figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png" width="400px" />
 
 ```
  44%|██████████████████████▌                            | 133/300 [00:43<00:49,  3.37it/s]contour_1645_5_2 did not pass pov check NOI 2 perc 0.4642857142857143
@@ -115,10 +115,10 @@ The selection process will in turn two of the contours:
 The sampled pitch contours will be:
 
 - Sampled contour `1543_9_3`
-<img alt="sampled_1543_9_3" src="figures/sample_results/good_f0_contour_1543_9_3_2nd_pass_75_600.png" width="200px" />
+<img alt="sampled_1543_9_3" src="figures/sample_results/good_f0_contour_1543_9_3_2nd_pass_75_600.png" width="400px" />
 
 - Sampled contour `1451_8_1`
-<img alt="sampled_1451_8_1" src="figures/sample_results/good_f0_contour_1451_8_1_2nd_pass_75_600.png" width="200px" />
+<img alt="sampled_1451_8_1" src="figures/sample_results/good_f0_contour_1451_8_1_2nd_pass_75_600.png" width="400px" />
 
 
 ## Notes
