@@ -46,7 +46,7 @@ Notes:
     https://uk.groups.yahoo.com/neo/groups/praat-users/conversations/topics/3472?guce_referrer=aHR0cDovL3d3dy5wcmFhdHZvY2FsdG9vbGtpdC5jb20vZXh0cmFjdC1waXRjaC5odG1s&guce_referrer_sig=AQAAAIDU5m6QVh0fVdsdE0b2etWRi49u3PKIN2BLKLWeuqlPrqXlo1Nn_TouJlGByEa361pcFeAnN6DWEbBvpd4ElCouJ0fD7eRiNz1-c_du6Psv3Gn4NXaCe62oQ8DCUa-HMspxd0d432ABbpukit0deIPiTc9Ba61WnenR24Kb66V2
 
 - use the bounds to extract the pitch using Kaldi,
-- plot with spectrogram, annotations and noi on plots.
+- the tool plots with spectrogram, annotations and noi on plots.
 
 Some of the code is taken from previous work on ProsoDeep.
 
@@ -55,9 +55,7 @@ Created on Fri Mar 01 2019
 @author: Branislav Gerazov
 """
 import numpy as np
-from matplotlib import pyplot as plt
 import pandas as pd
-import seaborn as sns
 from scipy.interpolate import interp1d
 import pickle
 from collections import namedtuple
@@ -67,7 +65,6 @@ from natsort import natsorted
 from tqdm import tqdm
 import re
 import tgt  # textgrid tools
-from shutil import copyfile
 import pitch_extract_utils as utils
 import json
 
@@ -152,6 +149,8 @@ else:
     df_csv = pd.DataFrame(columns="file info label".split())
     file_names = [wav_name.replace(".wav", "") for wav_name in wav_names]
     df_csv.file = file_names
+    df_csv.info = ""
+    df_csv.label = ""
     df_csv.to_csv(csv_name)
 
 # %% 1. Kaldi first pass to find min and max
