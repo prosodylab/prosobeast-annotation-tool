@@ -103,9 +103,11 @@ do_1st_pass = True
 do_bound_extraction = True
 do_2nd_pass = True
 # f0 bounds for first pass, tweak max if necessary
-f0_min_init = 75
+# f0_min_init = 75
+f0_min_init = 60  # Hirst's suggested min
 # f0_max_init = 450
-f0_max_init = 600
+# f0_max_init = 600
+f0_max_init = 750  # Hirst's suggested max
 
 # probability of voicing thresholding for f0 extracted by Kaldi
 # 0.5 seems too restrictive, 0.2 is about right
