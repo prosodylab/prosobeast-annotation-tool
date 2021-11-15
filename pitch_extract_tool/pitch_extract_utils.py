@@ -245,3 +245,20 @@ def plot_histogram(
     plt.savefig(plot_name, dpi="figure")
     if not show_plots:
         plt.close(fig)
+
+def check_consistency(wav_names, file_names, raise_error=False):
+    for wav_name in wav_names:
+        if wav_name.replace(".wav", "") not in file_names:
+            message = f"{wav_name} not found in CSV file names!"
+            if raise_error:
+                raise ValueError(f"> Error! {message}")
+            else:
+                print(f"> Warning: {message}")
+    for file_name in file_names:
+        if file_name + ".wav" not in wav_names:
+            message = f"{file_name} not found in audio path!"
+            if raise_error:
+                raise ValueError(f"> Error! {message}")
+            else:
+                print(f"> Warning: {message}")
+
