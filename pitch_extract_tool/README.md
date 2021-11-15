@@ -53,9 +53,9 @@ The implementation is in the function `get_hirst_bounds()` in
 
 The script outputs plots from all the pitch contours extracted in the 1st and 2nd pass in the same directory specified by `f0_plot_path`. The naming is such that one can easily compare the two passes and see if things improved or not.
 
-In addition $f_0$ histograms are plot for each speaker in the dataset in `hirst_plot_path`. These include the calculated bounds that are used in the 2nd pass.
+In addition pitch histograms are plot for each speaker in the dataset in `hirst_plot_path`. These include the calculated bounds that are used in the 2nd pass.
 
-The $f_0$-s of the selected utterances are plot in `good_plot_path`.
+The pitch of the selected utterances are plot in `good_plot_path`.
 
 ## Sample Results
 
@@ -63,46 +63,46 @@ The results here have been obtained when running the Pitch Extract Tool on the s
 
 - POV threshold of 0.2,
 - POV percentage threshold of 0.5,
-- minimum $f_0$ for the initial pass of 75 Hz,
-- maximum $f_0$ for the initial pass of 600 Hz.
+- minimum pitch for the initial pass of 75 Hz,
+- maximum pitch for the initial pass of 600 Hz.
 
 ### Two pass f0
 
 The pitch contours are improved in the 2nd pass in general, e.g. for `contour_1543_9_3` we get:
 
 - First pass
-[!contour_1543_9_3_1st](figures/sample_results/f0_contour_1543_9_3_1st_pass_75_600.png)
+![contour_1543_9_3_1st](figures/sample_results/f0_contour_1543_9_3_1st_pass_75_600.png)
 
 - Second pass
-[!contour_1543_9_3_2nd](figures/sample_results/f0_contour_1543_9_3_2nd_pass_75_600.png)
+![contour_1543_9_3_2nd](figures/sample_results/f0_contour_1543_9_3_2nd_pass_75_600.png)
 
 But it does degrade others, e.g. `contour_1451_8_1`:
 
 - First pass
-[!contour_1451_8_1_1st](figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png)
+![contour_1451_8_1_1st](figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png)
 
 - Second pass
-[!contour_1451_8_1_2nd](figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png)
+![contour_1451_8_1_2nd](figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png)
     
 ### Histograms
 
 The histograms for these two speakers `1543` and `1451` are:
 
 - Speaker `1543`
-[!histogram_1543](figures/sample_results/f0_histogram_speaker_1543.png)
+![histogram_1543](figures/sample_results/f0_histogram_speaker_1543.png)
 
 - Speaker `1451`
-[!histogram_1451](figures/sample_results/f0_histogram_speaker_1451.png)
+![histogram_1451](figures/sample_results/f0_histogram_speaker_1451.png)
 
 ### Contour selection
 
 The selection process will in turn two of the contours:
 
 - `contour_1645_5_2`
-[!contour_1645_5_2](figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png)
+![contour_1645_5_2](figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png)
 
 - `contour_1646_4_1`
-[!contour_1646_4_1](figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png)
+![contour_1646_4_1](figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png)
 
 ```
  44%|██████████████████████▌                            | 133/300 [00:43<00:49,  3.37it/s]contour_1645_5_2 did not pass pov check NOI 2 perc 0.4642857142857143
@@ -112,13 +112,13 @@ The selection process will in turn two of the contours:
 
 ### Contour sampling 
 
-The sampled $f_0$ contours will be:
+The sampled pitch contours will be:
 
 - Sampled contour `1543_9_3`
-[!sampled_1543_9_3](figures/sample_results/good_f0_contour_1543_9_3_2nd_pass_75_600.png)
+![sampled_1543_9_3](figures/sample_results/good_f0_contour_1543_9_3_2nd_pass_75_600.png)
 
 - Sampled contour `1451_8_1`
-[!sampled_1451_8_1](figures/sample_results/good_f0_contour_1451_8_1_2nd_pass_75_600.png)
+![sampled_1451_8_1](figures/sample_results/good_f0_contour_1451_8_1_2nd_pass_75_600.png)
 
 
 ## Notes
