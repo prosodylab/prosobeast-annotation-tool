@@ -82,11 +82,11 @@ But it does degrade others, e.g. `contour_1451_8_1`:
 <img alt="contour_1451_8_1_1st" src="figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png" width="400px" />
 
 - Second pass
-<img alt="contour_1451_8_1_2nd" src="figures/sample_results/f0_contour_1451_8_1_1st_pass_75_600.png" width="400px" />
+<img alt="contour_1451_8_1_2nd" src="figures/sample_results/f0_contour_1451_8_1_2nd_pass_75_600.png" width="400px" />
     
 ### Histograms
 
-The histograms for these two speakers `1543` and `1451` are:
+The histograms for these two speakers above - `1543` and `1451` are:
 
 - Speaker `1543`
 <img alt="histogram_1543" src="figures/sample_results/f0_histogram_speaker_1543.png" width="400px" />
@@ -96,7 +96,7 @@ The histograms for these two speakers `1543` and `1451` are:
 
 ### Contour selection
 
-The selection process will in turn two of the contours:
+The selection process will discard the following two contours:
 
 - `contour_1645_5_2`
 <img alt="contour_1645_5_2" src="figures/sample_results/f0_contour_1645_5_2_2nd_pass_75_600.png" width="400px" />
@@ -105,14 +105,18 @@ The selection process will in turn two of the contours:
 <img alt="contour_1646_4_1" src="figures/sample_results/f0_contour_1646_4_1_2nd_pass_75_600.png" width="400px" />
 
 ```
- 44%|██████████████████████▌                            | 133/300 [00:43<00:49,  3.37it/s]contour_1645_5_2 did not pass pov check NOI 2 perc 0.4642857142857143
- 47%|████████████████████████▏                          | 142/300 [00:45<00:50,  3.12it/s]contour_1646_4_1 did not pass pov check NOI 1 perc 0.45454545454545453
+ 44%|██████████████████████▌                            | 133/300 [00:43<00:49,  3.37it/s]
+> contour_1645_5_2 did not pass pov check NOI 2 perc 0.4642857142857143
+
+ 47%|████████████████████████▏                          | 142/300 [00:45<00:50,  3.12it/s]
+> contour_1646_4_1 did not pass pov check NOI 1 perc 0.45454545454545453
+
 100%|███████████████████████████████████████████████████| 300/300 [01:35<00:00,  3.13it/s]
 ```
 
 ### Contour sampling 
 
-The sampled pitch contours will be:
+The sampled pitch contours from above will look like:
 
 - Sampled contour `1543_9_3`
 <img alt="sampled_1543_9_3" src="figures/sample_results/good_f0_contour_1543_9_3_2nd_pass_75_600.png" width="400px" />

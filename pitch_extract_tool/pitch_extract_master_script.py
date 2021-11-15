@@ -471,7 +471,7 @@ for __, file_name, speaker, wav_name, textgrid_name, __, __, __, __ in tqdm(
         for i, pov in enumerate(noi_povs):
             pov_perc = np.sum(pov > pov_thresh) / len(pov)
             if pov_perc < pov_perc_thresh:
-                print(f"{file_name} did not pass pov check NOI {i} perc {pov_perc}")
+                print(f"\n> {file_name} did not pass pov check NOI {i} perc {pov_perc}\n")
                 continue
 
         # check passed, sample f0s and store
