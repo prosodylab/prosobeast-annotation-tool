@@ -1,6 +1,7 @@
 *.csv
 *.sqlite3
 *.wav
+*.TextGrid
 dataset*/
 venv/
 __pycache__/

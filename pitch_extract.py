@@ -67,29 +67,28 @@ import re
 import tgt  # textgrid tools
 from pitch_extract_tool import pitch_extract_utils as pitch_utils
 import json
+from icecream import ic
 
 
-def load_data(audio_path, csv_name=None):
-    if csv_name is None:
-        csv_name = "good_f0s.csv"
-    re_wav = re.compile(r"contour.*\.wav")
-    print("Loading data ...")
-    wav_names = natsorted([f for f in os.listdir(audio_path) if re_wav.match(f)])
-    if os.path.isfile(csv_name):
-        df_csv = pd.read_csv(csv_name)
-        file_names = df_csv.file.tolist()
-        # check for consistency
-        pitch_utils.check_consistency(wav_names, file_names, raise_error=False)
-    else:
-        print(f"> csv file {csv_name} not found! Generating one ...")
-        df_csv = pd.DataFrame(columns="file info label".split())
-        file_names = [wav_name.replace(".wav", "") for wav_name in wav_names]
-        df_csv.file = file_names
-        df_csv.to_csv(csv_name)
-    return df_csv, file_names, wav_names
+def create_csv(wav_names, csv_name='prosobeast.csv'):
+    data = pd.DataFrame(columns="file info label".split())
+    file_names = [wav_name.replace(".wav", "") for wav_name in wav_names]
+    data.file = file_names
+    data.label = "No label"
+    data.info = "No info"
+    data.to_csv(csv_name)
+    return data, file_names
 
 
-def create_output_folders(save_pkls=False, save_plots=False):
+def calculate_f0s(
+        df_source,
+        audio_path,
+        textgrid_path,
+        opts=None,  # TODO for setting options via the GUI
+        save_pkls=False,
+        save_plots=False,
+        do_2nd_pass=True,  # allow skipping 2nd pass
+        ):
     if save_pkls:
         pkl_path = "pkls"
         os.makedirs(pkl_path, exist_ok=True)
@@ -98,14 +97,24 @@ def create_output_folders(save_pkls=False, save_plots=False):
         f0_plot_path= f"{plot_path}/f0s"
         hist_plot_path= f"{plot_path}/hists"
         good_plot_path= f"{plot_path}/good_f0s"
-        os.makedirs(plot_path, exist_ok=True)
         os.makedirs(f0_plot_path, exist_ok=True)
         os.makedirs(hist_plot_path, exist_ok=True)
         os.makedirs(good_plot_path, exist_ok=True)
 
+    kaldi_path = "pitch_extract_tool/bin"
+    re_wav = re.compile(r".*\.wav")
+    print(f"> Reading audio files from {audio_path} ...")
+    wav_names = natsorted([f for f in os.listdir(audio_path) if re_wav.match(f)])
+    if df_source is None:
+        print(f"> CSV file not found! Generating one ...")
+        csv_name = 'prosobeast.csv'
+        save_csv = True  # save CSV at the end
+        df_source, file_names = create_csv(wav_names, csv_name=csv_name)
+    else:
+        save_csv = False  # save CSV at the end
+        file_names = df_source.file.tolist()
+        pitch_utils.check_consistency(wav_names, file_names, raise_error=False)
 
-def calculate_f0s():
-    # ## tool parameters
     # speakers are designated as the first _ _ field in the prosobeast sample data
     # e.g. contour_618_5_1 -> speaker id 618
     re_speaker = re.compile(r"contour_([0-9]+?)_")  # non-greedy capture group
@@ -114,11 +123,6 @@ def calculate_f0s():
     # define if phone tier starts and ends with a silence interval
     tier_phones_sil_start = False
     tier_phones_sil_end = True
-
-    # allow skipping steps if already done
-    do_1st_pass = True
-    do_bound_extraction = True
-    do_2nd_pass = True
 
     # f0 bounds for first pass, tweak max if necessary
     f0_min_init = 60  # Hirst's suggested min
@@ -139,138 +143,137 @@ def calculate_f0s():
     n_nois = None  # None takes all NOI numbers
 
     # plots settings
-    do_plots = True
+    if save_plots == True:
+        do_plots = True
+    else:
+        do_plots = False
+    # no sense in showin all the plots
     show_plots = False
 
-    # dataframe for f0 bounds
-    columns = "csv_min csv_max praat_min praat_max kaldi_min kaldi_max".split()
-    data_f0_bounds_hirst = pd.DataFrame(columns=columns)
-    # Stats = namedtuple("Stats", "mean median kde")  # namedtuples don't
-    # pickle well
-
     # %% 1. Kaldi first pass to find min and max
-    if do_1st_pass:
-        # %%% extract start and end intervals from TextGrid
-        columns = "file speaker wav textgrid start end start_phones end_phones".split()
-        df_f0_params = pd.DataFrame(columns=columns)
-        print('Loading textgrids ...')
-        for file_name in tqdm(file_names, ncols=90):
-            # file_name = "contour_15_2_2"  # debug
-            wav_name = file_name + ".wav"
-            textgrid_name = file_name + ".TextGrid"
-            # find speaker id
-            res = re_speaker.search(file_name)
-            if res is None:
-                raise ValueError(f"Speaker id not found in {file_name}!")
-            speaker = res.groups()[0]
-            try:
-                textgrid = tgt.read_textgrid(f"{textgrid_path}/{textgrid_name}")
-            except:
-                print(f"> Can't load TextGrid {textgrid_name}")
-                print(sys.exc_info()[0])
-                continue
-            # find start and end times from first and last phone
-            tier = textgrid.get_tier_by_name("phones")
-            start_time = tier[0].start_time
-            end_time = tier[-1].end_time  # last interval defaults to end of file
-            # phone start and end times
-            start_phones = tier[1].start_time if tier_phones_sil_start else start_time
-            end_phones = tier[-2].end_time if tier_phones_sil_end else end_time
-            # aggregate in data fram
-            data = [
-                file_name, speaker, wav_name, textgrid_name,
-                start_time, end_time, start_phones, end_phones
-                ]
-            row = pd.Series(data, index=columns)
-            df_f0_params = df_f0_params.append(row, ignore_index=True)
-            # break  # debug
-        speakers = df_f0_params.speaker.tolist()
-        n_speakers = len(speakers)
+    # %%% extract start and end intervals from TextGrid
+    print('> Loading textgrids ...')
+    columns = "file speaker wav textgrid start end start_phones end_phones".split()
+    df_f0_params = pd.DataFrame(columns=columns)
+    for file_name in tqdm(file_names, ncols=90):
+        # file_name = "contour_15_2_2"  # debug
+        wav_name = file_name + ".wav"
+        textgrid_name = file_name + ".TextGrid"
+        # find speaker id
+        res = re_speaker.search(file_name)
+        if res is None:
+            raise ValueError(f"Speaker id not found in {file_name}!")
+        speaker = res.groups()[0]
+        try:
+            textgrid = tgt.read_textgrid(f"{textgrid_path}/{textgrid_name}")
+        except:
+            print(f"> Can't load TextGrid {textgrid_name}")
+            print(sys.exc_info()[0])
+            continue
+        # find start and end times from first and last phone
+        tier = textgrid.get_tier_by_name("phones")
+        start_time = tier[0].start_time
+        end_time = tier[-1].end_time  # last interval defaults to end of file
+        # phone start and end times
+        start_phones = tier[1].start_time if tier_phones_sil_start else start_time
+        end_phones = tier[-2].end_time if tier_phones_sil_end else end_time
+        # aggregate in data fram
+        data = [
+            file_name, speaker, wav_name, textgrid_name,
+            start_time, end_time, start_phones, end_phones
+            ]
+        row = pd.Series(data, index=columns)
+        df_f0_params = df_f0_params.append(row, ignore_index=True)
+        # break  # debug
 
+    if save_pkls:
         pkl_name = f"{pkl_path}/df_f0_params.pkl"
         with open(pkl_name, "wb") as f:
             pickle.dump(df_f0_params, f, -1)
 
-        # %%% get the f0s and plot them
-        f0s_speakers_kaldi_1st = {}  # dict of f0s per speaker
-        noi_f0s_kaldi_1st = {}  # dict of noi f0s
-        noi_povs_kaldi_1st = {}  # dict of noi povs
-        for (
-                __, file_name, speaker, wav_name, textgrid_name,
-                start_time, end_time, start_phones, end_phones
-                ) in tqdm(df_f0_params.itertuples(), total=len(df_f0_params), ncols=90):
-            # debug
-            # __, __, speaker, wav_name, textgrid_name, start_time, end_time = data_files.itertuples().__next__()
-            t, f0, f0_log, f0_filt, f0_log_filt, pov = pitch_utils.kaldi_extract_pitch(
-                    audio_path, wav_name, f0min=f0_min_init, f0max=f0_max_init)
-            # trim
-            i_start = np.where(t > start_phones)[0][0]
-            i_end = np.where(t < end_phones)[0][-1]
-            f0s = f0[i_start : i_end]
-            povs = pov[i_start : i_end]
-            ts = t[i_start : i_end]
-            # apply pov based thresholding
-            f0s_pov = f0s[povs > pov_thresh]
-            ts_pov = ts[povs > pov_thresh]
-            # update dictionary
-            if speaker in f0s_speakers_kaldi_1st.keys():  # concatenate
-                f0s_speakers_kaldi_1st[speaker] = np.r_[
-                    f0s_speakers_kaldi_1st[speaker],
-                    f0s_pov
-                    ]
-            else:
-                f0s_speakers_kaldi_1st[speaker] = f0s_pov
+    # %%% get the f0s and plot them
+    print("> Kaldi 1st pass ...")
+    f0s_speakers_kaldi_1st = {}  # dict of f0s per speaker
+    noi_f0s_kaldi_1st = {}  # dict of noi f0s
+    noi_povs_kaldi_1st = {}  # dict of noi povs
+    for (
+            __, file_name, speaker, wav_name, textgrid_name,
+            start_time, end_time, start_phones, end_phones
+            ) in tqdm(
+                df_f0_params.itertuples(), total=len(df_f0_params), ncols=90
+                ):
+        t, f0, __, __, __, pov = pitch_utils.kaldi_extract_pitch(
+            kaldi_path, audio_path, wav_name, f0min=f0_min_init, f0max=f0_max_init
+            )
+        # trim
+        i_start = np.where(t > start_phones)[0][0]
+        i_end = np.where(t < end_phones)[0][-1]
+        f0s = f0[i_start : i_end]
+        povs = pov[i_start : i_end]
+        ts = t[i_start : i_end]
+        # apply pov based thresholding
+        f0s_pov = f0s[povs > pov_thresh]
+        ts_pov = ts[povs > pov_thresh]
+        # update dictionary
+        if speaker in f0s_speakers_kaldi_1st.keys():  # concatenate
+            f0s_speakers_kaldi_1st[speaker] = np.r_[
+                f0s_speakers_kaldi_1st[speaker],
+                f0s_pov
+                ]
+        else:
+            f0s_speakers_kaldi_1st[speaker] = f0s_pov
 
-            # plot spectrogram
+        # plot spectrogram
+        if do_plots:
+            fig, ax = pitch_utils.plot_pitch_spectrogram(
+                audio_path, wav_name, f0_max_init, f0_min_init
+                )
+        # extract vowel f0s for ROIs = NOIs
+        textgrid = tgt.read_textgrid(f"{textgrid_path}/{textgrid_name}")
+        tier_phones = textgrid.get_tier_by_name("phones")
+        tier_woi = textgrid.get_tier_by_name("woi")
+        noi_f0s = []  # list of f0s per noi
+        noi_povs = []  # list of povs per noi
+        for interval in tier_phones.intervals:
+            t_start = interval.start_time
+            t_end = interval.end_time
+            text = interval.text
+            central_time = (t_start + t_end)/2
+            # find NOIs
+            if re_vowels.search(text):
+                # check if vowel in woi accumulate as noi
+                # TODO verify if it works for non consecutive WOIs
+                if tier_woi.get_annotations_between_timepoints(
+                        central_time, central_time,
+                        left_overlap=True, right_overlap=True
+                        ):
+                    i_start_noi = np.where(t > t_start)[0][0]
+                    i_end_noi = np.where(t < t_end)[0][-1]
+                    noi_f0s.append(f0[i_start_noi : i_end_noi])
+                    noi_povs.append(pov[i_start_noi : i_end_noi])
+                    # highlight NOI segments
+                    if do_plots:
+                        ax = pitch_utils.highlight_segment(ax, t_start, t_end, f0_max_init)
+            # add phone level annotations
             if do_plots:
-                fig, ax = pitch_utils.plot_pitch_spectrogram(
-                    audio_path, wav_name, f0_max_init, f0_min_init
+                ax = pitch_utils.mark_phone_segment(
+                    ax, t_start, t_end, f0_max_init, central_time, text
                     )
-            # extract vowel f0s for ROIs = NOIs
-            textgrid = tgt.read_textgrid(f"{textgrid_path}/{textgrid_name}")
-            tier_phones = textgrid.get_tier_by_name("phones")
-            tier_woi = textgrid.get_tier_by_name("woi")
-            noi_f0s = []  # list of f0s per noi
-            noi_povs = []  # list of povs per noi
-            for interval in tier_phones.intervals:
-                t_start = interval.start_time
-                t_end = interval.end_time
-                text = interval.text
-                central_time = (t_start + t_end)/2
-                # find NOIs
-                if re_vowels.search(text):
-                    # check if vowel in woi accumulate as noi
-                    # TODO verify if it works for non consecutive WOIs
-                    if tier_woi.get_annotations_between_timepoints(
-                            central_time, central_time,
-                            left_overlap=True, right_overlap=True
-                            ):
-                        i_start_noi = np.where(t > t_start)[0][0]
-                        i_end_noi = np.where(t < t_end)[0][-1]
-                        noi_f0s.append(f0[i_start_noi : i_end_noi])
-                        noi_povs.append(pov[i_start_noi : i_end_noi])
-                        # highlight NOI segments
-                        if do_plots:
-                            ax = pitch_utils.highlight_segment(ax, t_start, t_end, f0_max_init)
-                # add phone level annotations
-                if do_plots:
-                    ax = pitch_utils.mark_phone_segment(
-                        ax, t_start, t_end, f0_max_init, central_time, text
-                        )
-            noi_f0s_kaldi_1st[file_name] = noi_f0s
-            noi_povs_kaldi_1st[file_name] = noi_povs
-            # add f0 contour
-            if do_plots:
-                ax = pitch_utils.add_f0_contour(ax, ts, f0s, ts_pov, f0s_pov)
-                save_name = (
-                    f"{f0_plot_path}/f0_{file_name}_"
-                    f"1st_pass_{f0_min_init}_{f0_max_init}.png"
-                    )
-                pitch_utils.format_and_save_plot(
-                    fig, ax, save_name, start_time, end_time, f0_min_init, f0_max_init,
-                    show_plots=show_plots,
-                    )
+        noi_f0s_kaldi_1st[file_name] = noi_f0s
+        noi_povs_kaldi_1st[file_name] = noi_povs
+        # add f0 contour
+        if do_plots:
+            ax = pitch_utils.add_f0_contour(ax, ts, f0s, ts_pov, f0s_pov)
+            save_name = (
+                f"{f0_plot_path}/f0_{file_name}_"
+                f"1st_pass_{f0_min_init}_{f0_max_init}.png"
+                )
+            pitch_utils.format_and_save_plot(
+                fig, ax, save_name, start_time, end_time, f0_min_init, f0_max_init,
+                show_plots=show_plots,
+                )
 
+    if save_pkls:
         pkl_name = f"{pkl_path}/kaldi_f0s_1st_pass_{f0_min_init}_{f0_max_init}.pkl"
         data = (
             f0s_speakers_kaldi_1st, noi_f0s_kaldi_1st, noi_povs_kaldi_1st,
@@ -280,15 +283,13 @@ def calculate_f0s():
             pickle.dump(data, f, -1)
 
     # %% 2. Calculate the bounds
-    if do_bound_extraction:
-        if not do_1st_pass:
-            # load saved data
-            pkl_name = pkl_path + f"kaldi_f0s_1st_pass_{f0_min_init}_{f0_max_init}.pkl"
-            with open(pkl_name, "rb") as f:
-                data = pickle.load(f)
-            (f0s_speakers_kaldi_1st, noi_f0s_kaldi_1st, noi_povs_kaldi_1st,
-             f0_min_init, f0_max_init) = data
-
+    print("> Calculating the bounds ...")
+    if do_2nd_pass:
+        # dataframe for f0 bounds
+        columns = "csv_min csv_max praat_min praat_max kaldi_min kaldi_max".split()
+        data_f0_bounds_hirst = pd.DataFrame(columns=columns)
+        # Stats = namedtuple("Stats", "mean median kde")  # namedtuples don't
+        # pickle well
         f0_stats_kaldi = {}
         for speaker in tqdm(list(f0s_speakers_kaldi_1st.keys()), ncols=90):
             f0s_vec = f0s_speakers_kaldi_1st[speaker]
@@ -307,23 +308,14 @@ def calculate_f0s():
                     f0s_vec, f0_mean, f0_median, f0_kde, f0_min_hirst, f0_max_hirst,
                     speaker, plot_name, show_plots=show_plots,
                     )
-        pkl_name = f"{pkl_path}/kaldi_f0_hirst_bounds_{f0_min_init}_{f0_max_init}.pkl"
-        data = data_f0_bounds_hirst, f0_stats_kaldi, f0_min_init, f0_max_init
-        with open(pkl_name, "wb") as f:
-            pickle.dump(data, f, -1)
+        if save_pkls:
+            pkl_name = f"{pkl_path}/kaldi_f0_hirst_bounds_{f0_min_init}_{f0_max_init}.pkl"
+            data = data_f0_bounds_hirst, f0_stats_kaldi, f0_min_init, f0_max_init
+            with open(pkl_name, "wb") as f:
+                pickle.dump(data, f, -1)
 
     # %% 3. Kaldi second pass
-    if not do_1st_pass:
-        pkl_name = f"{pkl_path}/df_f0_params.pkl"
-        with open(pkl_name, "rb") as f:
-            df_f0_params = pickle.load(f)
-
-    if not do_bound_extraction:
-        pkl_name = f"{pkl_path}/kaldi_f0_hirst_bounds_{f0_min_init}_{f0_max_init}.pkl"
-        with open(pkl_name, "rb") as f:
-            data = pickle.load(f)
-        data_f0_bounds_hirst, f0_stats_kaldi, f0_min_init, f0_max_init = data
-
+    print("> Kaldi 2nd pass ...")
     if do_2nd_pass:
         f0s_speakers_kaldi_2nd = {}  # dict of f0s per speaker
         f0s_file_kaldi_2nd = {}  # dict of f0s per file
@@ -335,14 +327,14 @@ def calculate_f0s():
         for (
                 __, file_name, speaker, wav_name, textgrid_name,
                 start_time, end_time, start_phones, end_phones
-                ) in tqdm(df_f0_params.itertuples(), total=len(df_f0_params), ncols=90):
-            # debug
-            # __, __, speaker, wav_name, textgrid_name, start_time, end_time = list(data_files.itertuples())[0]
+                ) in tqdm(
+                    df_f0_params.itertuples(), total=len(df_f0_params), ncols=90
+                    ):
             f0_min_speaker = data_f0_bounds_hirst.loc[speaker, "kaldi_min"]
             f0_max_speaker = data_f0_bounds_hirst.loc[speaker, "kaldi_max"]
-            t, f0, f0_log, f0_filt, f0_log_filt, pov = pitch_utils.kaldi_extract_pitch(
-                    audio_path, wav_name,
-                    f0min=f0_min_speaker, f0max=f0_max_speaker)
+            t, f0, __, __, __, pov = pitch_utils.kaldi_extract_pitch(
+                kaldi_path, audio_path, wav_name, f0min=f0_min_speaker, f0max=f0_max_speaker
+                )
             # trim
             i_start = np.where(t > start_phones)[0][0]
             i_end = np.where(t < end_phones)[0][-1]
@@ -416,34 +408,20 @@ def calculate_f0s():
                     show_plots=show_plots,
                     )
 
-        pkl_name = f"{pkl_path}/kaldi_f0s_2nd_pass_{f0_min_init}_{f0_max_init}.pkl"
-        data = (
-            f0s_speakers_kaldi_2nd, f0s_file_kaldi_2nd, ts_file_kaldi_2nd,
-            noi_f0s_kaldi_2nd, noi_povs_kaldi_2nd, noi_ts_kaldi_2nd,
-            noi_bounds_files, data_f0_bounds_hirst,
-            f0_min_init, f0_max_init
-            )
-        with open(pkl_name, "wb") as f:
-            pickle.dump(data, f, -1)
+        if save_pkls:
+            pkl_name = f"{pkl_path}/kaldi_f0s_2nd_pass_{f0_min_init}_{f0_max_init}.pkl"
+            data = (
+                f0s_speakers_kaldi_2nd, f0s_file_kaldi_2nd, ts_file_kaldi_2nd,
+                noi_f0s_kaldi_2nd, noi_povs_kaldi_2nd, noi_ts_kaldi_2nd,
+                noi_bounds_files, data_f0_bounds_hirst,
+                f0_min_init, f0_max_init
+                )
+            with open(pkl_name, "wb") as f:
+                pickle.dump(data, f, -1)
 
     # %% 4. select good contours and save csv
+    print("> Selecting the good contours and sampling ...")
     # find good files and check if pov_perc of pov is above threshold
-    if not do_1st_pass:
-        pkl_name = f"{pkl_path}/df_f0_params.pkl"
-        with open(pkl_name, "rb") as f:
-            df_f0_params = pickle.load(f)
-
-    if not do_2nd_pass:
-        pkl_name = f"{pkl_path}/kaldi_f0s_2nd_pass_{f0_min_init}_{f0_max_init}.pkl"
-        with open(pkl_name, "wb") as f:
-            data = pickle.load(f)
-        (
-            f0s_speakers_kaldi_2nd, f0s_file_kaldi_2nd, ts_file_kaldi_2nd,
-            noi_f0s_kaldi_2nd, noi_povs_kaldi_2nd, noi_ts_kaldi_2nd,
-            noi_bounds_files, data_f0_bounds_hirst,
-            f0_min_init, f0_max_init
-            ) = data
-
     # df_csv  # should have columns="file info label"
     columns = "file info label durs f0s".split()
     df_f0s_good = pd.DataFrame(columns=columns)
@@ -454,8 +432,6 @@ def calculate_f0s():
         f0s = f0s_file_kaldi_2nd[file_name]
         ts = ts_file_kaldi_2nd[file_name]
         noi_povs = noi_povs_kaldi_2nd[file_name]  # list of povs
-        f0_min = data_f0_bounds_hirst.loc[speaker, "kaldi_min"]
-        f0_max = data_f0_bounds_hirst.loc[speaker, "kaldi_max"]
         noi_bounds = noi_bounds_files[file_name]
         if n_nois is None or len(noi_povs) == n_nois:
             # POV checks
@@ -493,9 +469,9 @@ def calculate_f0s():
 
             # aggregate data
             # retrieve info and labels from csv
-            mask = df_csv.file == file_name
-            info = df_csv.loc[mask, "info"]
-            label = df_csv.loc[mask, "label"]
+            mask = df_source.file == file_name
+            info = df_source.loc[mask, "info"]
+            label = df_source.loc[mask, "label"]
             row = pd.Series(
                 [file_name, info, label,
                  json.dumps(t_dur_vec), json.dumps(f0_samples_vec)],
@@ -535,8 +511,19 @@ def calculate_f0s():
                     show_plots=show_plots,
                     )
 
+    if save_pkls:
+        pkl_name = f"{pkl_path}/good_f0s.pkl"
+        with open(pkl_name, "wb") as f:
+            pickle.dump(df_f0s_good, f, -1)
     # save data
-    df_f0s_good.to_csv(good_csv_name)
-    pkl_name = f"{pkl_path}/good_f0s.pkl"
-    with open(pkl_name, "wb") as f:
-        pickle.dump(df_f0s_good, f, -1)
+    if save_csv:
+        df_f0s_good.to_csv(csv_name)
+
+    # df_f0s_good columns = "file info label durs f0s".split()
+    # add durs and f0s to original data sent
+    df_source['dur'] = df_f0s_good.durs
+    df_source['f0'] = df_f0s_good.f0s
+    # clean up kaldi files
+    os.remove(f"{kaldi_path}/temp.scp")
+    os.remove(f"{kaldi_path}/temp.ark")
+    return df_source

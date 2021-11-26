@@ -3,4 +3,8 @@ matplotlib
 pandas
 Flask==1.1.1
 Flask-SQLAlchemy>=2.5
-bokeh==2.2.1
+bokeh==2.4.2
+natsort
+tgt
+librosa
+tqdm

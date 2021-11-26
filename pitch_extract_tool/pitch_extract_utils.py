@@ -8,22 +8,25 @@ from scipy.io import wavfile
 from scipy.stats import gaussian_kde
 import librosa
 
-from matplotlib import pyplot as plt
-import seaborn as sns
+try:
+    from matplotlib import pyplot as plt
+except ImportError:
+    print('No matplotlib installed!')
+try:
+    import seaborn as sns
+except ImportError:
+    print('No seaborn installed!')
 
 
-def kaldi_extract_pitch(wav_path, wav_name, f0min=80, f0max=300, fs=None):
+def kaldi_extract_pitch(kaldi_path, wav_path, wav_name, f0min=80, f0max=300, fs=None):
     """
     Kaldi based pitch extractor - adapted from WCAD implementation:
     https://github.com/dipteam/wcad
     """
-    # debug
-    # wav_path = "../../data/bestiary_binger_branko/0_data/"
-    # wav_name = "contour_15_1_1.wav"
     # Make temp files
-    kaldi_scp_file = "temp.scp"
-    kaldi_ark_file = "temp.ark"
-    kaldi = "./bin/compute-kaldi-pitch-feats"
+    kaldi_scp_file = f"{kaldi_path}/temp.scp"
+    kaldi_ark_file = f"{kaldi_path}/temp.ark"
+    kaldi = f"{kaldi_path}/compute-kaldi-pitch-feats"
 
     # Write scp file for Kaldi
     with open(kaldi_scp_file, "w") as text_file:
@@ -48,7 +51,7 @@ def kaldi_extract_pitch(wav_path, wav_name, f0min=80, f0max=300, fs=None):
         kaldi + kaldi_params, shell=True,
         stdout=open(os.devnull, "wb"), stderr=open(os.devnull, 'wb')
         )
-    # Kaldi"s result is stored as tuple (nccf, f0), with file"s name in the header
+    # Kaldi's result is stored as tuple (nccf, f0), with file's name in the header
     kaldi_pitch_t = np.dtype([("nccf", np.float32), ("f0", np.float32)])
     # new type: (nccf, f0)
     with open(kaldi_ark_file, "rb") as file_obj:
@@ -245,6 +248,7 @@ def plot_histogram(
     plt.savefig(plot_name, dpi="figure")
     if not show_plots:
         plt.close(fig)
+
 
 def check_consistency(wav_names, file_names, raise_error=False):
     for wav_name in wav_names:

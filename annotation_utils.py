@@ -187,6 +187,7 @@ def update_db_colors():
     labels = labels_df.label.tolist()
     colors = labels_df.color.tolist()
     labels_colors = dict(zip(labels, colors))
+    labels_colors[None] = ""
     source_df['color'] = source_df.label.map(
         lambda x: labels_colors[x]
         )
@@ -336,7 +337,7 @@ def plot(location=None):
         title='y scale'
         )
 
-    with open('bokeh_js/bokeh_plot_onclick.js', 'r') as f:
+    with open('js/bokeh_plot_onclick.js', 'r') as f:
         code = f.read()
     source.selected.js_on_change(
         'indices',
@@ -349,7 +350,7 @@ def plot(location=None):
                 code=code
                 )
         )
-    with open('bokeh_js/bokeh_label_onchange.js', 'r') as f:
+    with open('js/bokeh_label_onchange.js', 'r') as f:
         code = f.read()
     labels_group.js_on_change(
         'active',
@@ -363,7 +364,7 @@ def plot(location=None):
             )
         )
 
-    with open('bokeh_js/bokeh_locations_onchange.js', 'r') as f:
+    with open('js/bokeh_locations_onchange.js', 'r') as f:
         code = f.read()
     locations_group.js_on_change(
         'active',
@@ -382,7 +383,7 @@ def plot(location=None):
             )
         )
 
-    with open('bokeh_js/bokeh_x_slider_onchange.js', 'r') as f:
+    with open('js/bokeh_x_slider_onchange.js', 'r') as f:
         code = f.read()
     x_slider.js_on_change(
         'value',
@@ -400,7 +401,7 @@ def plot(location=None):
             code=code
             )
         )
-    with open('bokeh_js/bokeh_y_slider_onchange.js', 'r') as f:
+    with open('js/bokeh_y_slider_onchange.js', 'r') as f:
         code = f.read()
     y_slider.js_on_change(
         'value',
