@@ -1,0 +1,102 @@
+File type = "ooTextFile"
+Object class = "TextGrid"
+
+xmin = 0 
+xmax = 0.9479818594104309 
+tiers? <exists> 
+size = 3 
+item []: 
+    item [1]:
+        class = "IntervalTier" 
+        name = "words" 
+        xmin = 0 
+        xmax = 0.9479818594104309 
+        intervals: size = 4 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.19 
+            text = "you" 
+        intervals [2]:
+            xmin = 0.19 
+            xmax = 0.44 
+            text = "have" 
+        intervals [3]:
+            xmin = 0.44 
+            xmax = 0.9 
+            text = "money" 
+        intervals [4]:
+            xmin = 0.9 
+            xmax = 0.9479818594104309 
+            text = "" 
+    item [2]:
+        class = "IntervalTier" 
+        name = "phones" 
+        xmin = 0 
+        xmax = 0.9479818594104309 
+        intervals: size = 11 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.16 
+            text = "Y" 
+        intervals [2]:
+            xmin = 0.16 
+            xmax = 0.19 
+            text = "UW1" 
+        intervals [3]:
+            xmin = 0.19 
+            xmax = 0.27 
+            text = "HH" 
+        intervals [4]:
+            xmin = 0.27 
+            xmax = 0.37 
+            text = "AE1" 
+        intervals [5]:
+            xmin = 0.37 
+            xmax = 0.44 
+            text = "V" 
+        intervals [6]:
+            xmin = 0.44 
+            xmax = 0.53 
+            text = "M" 
+        intervals [7]:
+            xmin = 0.53 
+            xmax = 0.61 
+            text = "AH1" 
+        intervals [8]:
+            xmin = 0.61 
+            xmax = 0.68 
+            text = "N" 
+        intervals [9]:
+            xmin = 0.68 
+            xmax = 0.9 
+            text = "IY0" 
+        intervals [10]:
+            xmin = 0.9 
+            xmax = 0.93 
+            text = "sp" 
+        intervals [11]:
+            xmin = 0.93 
+            xmax = 0.9479818594104309 
+            text = "" 
+    item [3]:
+        class = "IntervalTier" 
+        name = "woi" 
+        xmin = 0 
+        xmax = 0.9479818594104309 
+        intervals: size = 4 
+        intervals [1]:
+            xmin = 0 
+            xmax = 0.19 
+            text = "1" 
+        intervals [2]:
+            xmin = 0.19 
+            xmax = 0.44 
+            text = "2" 
+        intervals [3]:
+            xmin = 0.44 
+            xmax = 0.9 
+            text = "3" 
+        intervals [4]:
+            xmin = 0.9 
+            xmax = 0.9479818594104309 
+            text = "" 
