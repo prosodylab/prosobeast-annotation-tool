@@ -250,19 +250,27 @@ def plot_histogram(
         plt.close(fig)
 
 
-def check_consistency(wav_names, file_names, raise_error=False):
+def check_consistency(wav_names, file_names, raise_error=False, verbose=0):
+    raise_warning = False
     for wav_name in wav_names:
         if wav_name.replace(".wav", "") not in file_names:
             message = f"{wav_name} not found in CSV file names!"
             if raise_error:
                 raise ValueError(f"> Error! {message}")
             else:
-                print(f"> Warning: {message}")
+                if verbose > 1:
+                    print(f"> Warning: {message}")
+                else:
+                    raise_warning = True
     for file_name in file_names:
         if file_name + ".wav" not in wav_names:
             message = f"{file_name} not found in audio path!"
             if raise_error:
                 raise ValueError(f"> Error! {message}")
             else:
-                print(f"> Warning: {message}")
-
+                if verbose > 1:
+                    print(f"> Warning: {message}")
+                else:
+                    raise_warning = True
+    if raise_warning and verbose == 1:
+        print("> Warning: inconsistencies found between audio files and CSV!")

@@ -370,8 +370,9 @@ def extract_pitch():
         audio_path = 'static/audio'
         textgrid_path = 'static/textgrids'
         opts = request.data.decode("utf-8")
+        opts = json.loads(opts)
+        ic(opts)
         try:
-            # extract also durations for future analysis
             source_df = calculate_f0s(
                 df_source=data,
                 audio_path=audio_path,

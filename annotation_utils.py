@@ -329,11 +329,11 @@ def plot(location=None):
     x_scale, y_scale = scales_dict[location]
 
     x_slider = Slider(
-        start=0.05, end=20, value=x_scale, step=0.05,
+        start=0.01, end=200, value=x_scale, step=0.05,
         title='x scale'
         )
     y_slider = Slider(
-        start=0.001, end=0.2, value=y_scale, step=0.001,
+        start=0.0001, end=2, value=y_scale, step=0.001,
         title='y scale'
         )
 

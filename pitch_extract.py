@@ -61,7 +61,6 @@ import pickle
 from collections import namedtuple
 import os
 import sys
-from natsort import natsorted
 from tqdm import tqdm
 import re
 import tgt  # textgrid tools
@@ -84,11 +83,12 @@ def calculate_f0s(
         df_source,
         audio_path,
         textgrid_path,
-        opts=None,  # TODO for setting options via the GUI
+        opts=None,
         save_pkls=False,
         save_plots=False,
         do_2nd_pass=True,  # allow skipping 2nd pass
         ):
+
     if save_pkls:
         pkl_path = "pkls"
         os.makedirs(pkl_path, exist_ok=True)
@@ -104,7 +104,7 @@ def calculate_f0s(
     kaldi_path = "pitch_extract_tool/bin"
     re_wav = re.compile(r".*\.wav")
     print(f"> Reading audio files from {audio_path} ...")
-    wav_names = natsorted([f for f in os.listdir(audio_path) if re_wav.match(f)])
+    wav_names = sorted([f for f in os.listdir(audio_path) if re_wav.match(f)])
     if df_source is None:
         print(f"> CSV file not found! Generating one ...")
         csv_name = 'prosobeast.csv'
@@ -113,31 +113,51 @@ def calculate_f0s(
     else:
         save_csv = False  # save CSV at the end
         file_names = df_source.file.tolist()
-        pitch_utils.check_consistency(wav_names, file_names, raise_error=False)
+        pitch_utils.check_consistency(
+            wav_names,
+            file_names,
+            raise_error=False,
+            verbose=1
+            )
 
-    # speakers are designated as the first _ _ field in the prosobeast sample data
-    # e.g. contour_618_5_1 -> speaker id 618
-    re_speaker = re.compile(r"contour_([0-9]+?)_")  # non-greedy capture group
-    re_vowels = re.compile(r"[0-2]$")
+    # opts = {
+    #     'f0_max_init': '750',
+    #     'f0_min_init ': '60',
+    #     'n_samples': '5',
+    #     're_speaker': 'contour_([0-9]+?)_',
+    #     're_vowels': '[0-2]$'}
+    if opts is None:
+        # speakers are designated as the first _ _ field in the prosobeast sample data
+        # e.g. contour_618_5_1 -> speaker id 618
+        re_speaker = re.compile(r"contour_([0-9]+?)_")  # non-greedy capture group
+        re_vowels = re.compile(r"[0-2]$")
+
+        # f0 bounds for first pass, tweak max if necessary
+        f0_min_init = 60  # Hirst's suggested min
+        # f0_min_init = 75
+        f0_max_init = 750  # Hirst's suggested max
+        # f0_max_init = 450  # for male speakers
+        # f0_max_init = 600
+        # how many samples
+        n_samples = 5
+    else:
+        re_speaker = re.compile(opts["re_speaker"])  # non-greedy capture group
+        re_vowels = re.compile(opts["re_vowels"])
+        f0_min_init = float(opts["f0_min_init"])
+        f0_max_init = float(opts["f0_max_init"])
+        n_samples = int(opts["n_samples"])
 
     # define if phone tier starts and ends with a silence interval
     tier_phones_sil_start = False
     tier_phones_sil_end = True
-
-    # f0 bounds for first pass, tweak max if necessary
-    f0_min_init = 60  # Hirst's suggested min
-    # f0_min_init = 75
-    f0_max_init = 750  # Hirst's suggested max
-    # f0_max_init = 450  # for male speakers
-    # f0_max_init = 600
 
     # probability of voicing thresholding for f0 extracted by Kaldi
     # 0.5 seems too restrictive, 0.2 is about right
     pov_thresh = 0.2
     # set good NOI selection POV percent threshold
     pov_perc_thresh = .5
+
     # sampling settings
-    n_samples = 5
     t_samples_perc = np.linspace(1/n_samples/2, 1-1/n_samples/2, n_samples)
     # nr of NOIs to take into consideration in data selection
     n_nois = None  # None takes all NOI numbers
