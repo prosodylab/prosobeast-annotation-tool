@@ -2,15 +2,15 @@
 {% block head %}
 {# <link rel="stylesheet" href="{{ url_for('static', filename='css/bokeh-1.2.0.min.css') }}" type="text/css" /> #}
 {# <link rel="stylesheet" href="{{ url_for('static', filename='css/bokeh-widgets-1.2.0.min.css') }}" type="text/css" /> #}
-<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-2.2.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-widgets-2.2.1.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-tables-2.2.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-2.4.2.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-widgets-2.4.2.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bokeh-tables-2.4.2.min.js') }}"></script>
 {{ plot_script | safe }}
 <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 {% endblock %}
 
 {% block content %}
-<audio id="audio" src="{{ url_for('static', filename='audio/ping.wav') }}" type="audio/wav"></audio>
+<audio id="audio" src="{{ url_for('static', filename='ping.wav') }}" type="audio/wav"></audio>
 <div class="row">
     <div class="col-10">
         {{ plot_div | safe }}

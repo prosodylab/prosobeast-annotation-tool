@@ -15,8 +15,12 @@ from flask import (
     )
 from flask_sqlalchemy import SQLAlchemy
 
+from icecream import ic
+
 import annotation_utils as utils
 from data_spread import calculate_data_spread
+from pitch_extract import calculate_f0s
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///prosobeast.sqlite3'
@@ -69,6 +73,8 @@ def home(location=None):
             not os.path.isfile('prosobeast.sqlite3')
             or not utils.check_table_exists("prosobeast")
             or not utils.check_table_exists("labels")
+            or not 'f0' in utils.load_df_from_db_table("prosobeast").columns
+            or not utils.check_table_exists("locations")
             # or not os.path.isdir('static/audio')
             ):
         return redirect('/init')
@@ -191,7 +197,7 @@ def upload():
     if request.method == "POST":
         if 'file' in request.files:
             file = request.files['file']
-            if allowed_file(file.filename, ['csv', 'CSV']):
+            if allowed_file(file.filename, ['csv']):
                 data_name = 'prosobeast.csv'
                 file.save(data_name)
                 __ = utils.upload_csv_to_db(
@@ -213,25 +219,34 @@ def init():
     #     data_uploaded = 'true'
     # except:
     #     data_uploaded = 'false'
-    if utils.check_table_exists("prosobeast"):
-        data_uploaded = 'true'
+    data_uploaded = utils.check_table_exists("prosobeast")
+    ic(data_uploaded)
+    if data_uploaded:
+        source_df = utils.load_df_from_db_table('prosobeast', unjsonify=False)
+        f0s_calculated = 'f0' in source_df.columns
+        ic(source_df.columns)
     else:
-        data_uploaded = 'false'
-    if utils.check_table_exists("labels"):
-        labels_uploaded = 'true'
+        f0s_calculated = False
+    ic(f0s_calculated)
+    labels_uploaded = utils.check_table_exists("labels")
+    ic(labels_uploaded)
+    audio_uploaded = os.path.isdir('static/audio')
+    ic(audio_uploaded)
+    if utils.check_table_exists("locations"):
+        locations = utils.load_df_from_db_table('locations', unjsonify=False)
+        locations_calculated = not locations.empty
     else:
-        labels_uploaded = 'false'
-    if os.path.isdir('static/audio'):
-        audio_uploaded = 'true'
-    else:
-        audio_uploaded = 'false'
-    print(data_uploaded)
+        locations_calculated = False
+    ic(locations_calculated)
     return render_template(
         'init.html',
         data_uploaded=json.dumps(data_uploaded),
         labels_uploaded=json.dumps(labels_uploaded),
         audio_uploaded=json.dumps(audio_uploaded),
+        f0s_calculated=json.dumps(f0s_calculated),
+        locations_calculated=json.dumps(locations_calculated),
         )
+
 
 @app.route('/deletedb_init', methods=['GET'])
 def deletedb_init():
@@ -270,6 +285,17 @@ def data_spread():
         gobackjson=json.dumps(goback),
         torch_present=torch_present,
         sklearn_present=sklearn_present,
+        )
+
+
+@app.route('/pitch_extract', methods=['GET'])
+def pitch_extract():
+    data_present = utils.check_table_exists("prosobeast")
+    textgrid_uploaded = os.path.isdir('static/textgrids')
+    return render_template(
+        'pitch_extract.html',
+        data_present=data_present,
+        textgrid_uploaded =textgrid_uploaded ,
         )
 
 
@@ -320,7 +346,6 @@ def calculate():
             i_insert = 3
         print(f'inserting column {source_label} at index {i}')
         source_df.insert(i_insert, source_label, locs['location'])
-
         print('updating dbs ...')
         utils.update_db_table_from_df(
             source_df, 'prosobeast', jsonify=False)
@@ -331,6 +356,42 @@ def calculate():
         return Response(f'Done! Generated data spread {label}.')
     else:
         return Response('No file selected!')
+
+
+@app.route('/extract_pitch', methods=['POST'])
+def extract_pitch():
+    print(f'processing {request.data}', flush=True)
+    if request.method == "POST":
+        if utils.check_table_exists("prosobeast"):
+            source_df = utils.load_df_from_db_table('prosobeast', unjsonify=False)
+            data = source_df.copy()
+        else:
+            data = None
+        audio_path = 'static/audio'
+        textgrid_path = 'static/textgrids'
+        opts = request.data.decode("utf-8")
+        opts = json.loads(opts)
+        ic(opts)
+        try:
+            source_df = calculate_f0s(
+                df_source=data,
+                audio_path=audio_path,
+                textgrid_path=textgrid_path,
+                opts=opts,
+                )
+        except ValueError as e:
+            return Response(str(e))
+        # update source_df
+        print('updating db ...')
+        utils.update_db_table_from_df(
+            source_df, 'prosobeast', jsonify=False)
+        ic(source_df.columns)
+        # initialise empty locations database
+        location_labels = []
+        utils.update_locations_db(location_labels, 'locations')
+        return Response('Done!')
+    else:
+        return Response('Wrong request method!')
 
 
 @app.route('/delete_data_spread', methods=['POST'])
@@ -431,7 +492,7 @@ def init_upload_audio():
             for file in uploaded_files:
                 print(file.filename, end='')
                 if file:
-                    if allowed_file(file.filename, ['wav', 'WAV']):
+                    if allowed_file(file.filename, ['wav']):
                         # filename = secure_filename(file.filename)
                         basename = os.path.basename(file.filename)
                         file.save('static/audio/'+basename)
@@ -448,3 +509,34 @@ def init_upload_audio():
             return Response(response)
     else:
         return redirect('/init')
+
+
+@app.route('/pitch_extract_upload_textgrid', methods=['POST'])
+def pitch_extract_upload_textgrid():
+    if request.method == "POST":
+        uploaded_files = request.files.getlist("textgrid_files[]")
+        if uploaded_files:
+            os.makedirs('static/textgrids', exist_ok=True)
+            success = False
+            for file in uploaded_files:
+                print(file.filename, end='')
+                if file:
+                    if allowed_file(file.filename, ['textgrid']):  # it uses lower
+                        # filename = secure_filename(file.filename)
+                        basename = os.path.basename(file.filename)
+                        file.save('static/textgrids/'+basename)
+                        print(' saved.')
+                        success = True
+                    else:
+                        print(' wrong file format!')
+                else:
+                    return Response('No files selected!')
+            if success:
+                response = 'Success!'
+            else:
+                response = 'Wrong file format!'
+            return Response(response)
+        else:
+            return Response("No files in request!")
+    else:
+        return redirect('/pitch_extract')

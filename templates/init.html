@@ -7,160 +7,192 @@
 </p>
 <br>
 <p>
-    <div class="row justify-content-left">
-        <div class="col-1">
-        </div>
-        <div class="col-6">
-            <!--<h1 style="text-transform: capitalize; font-weight: bold; font-size: 23px; color: 	#28a5e0
-                ; text-indent: 10px;">
-                Prosobeast Annotation Tool
-                </h1>-->
-                <p>
-                    To initialize the tool upload your intonation data and its 2D distribution in a CSV file as outlined in the documentation.
-                </p>
-                <p>
-                    <form method="POST" enctype="multipart/form-data" id='upload_data'>
-                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                        <input type="file" name="file">
-                        <br>
-                        <p>
-                            <button class="btn btn-primary" id="upload_data_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="upload_data()">
-                                Upload intonation data CSV</button>
-                            <span id="span_data" style="display: inline-block; margin: 0 10px 0 10px;">
-                            </span>
-                        </p>
-                    </form>
-                </p>
+<div class="row justify-content-left">
+  <div class="col-1">
+  </div>
+  <div class="col-6">
+    <!--<h1 style="text-transform: capitalize; font-weight: bold; font-size: 23px; color: 	#28a5e0
+      ; text-indent: 10px;">
+      Prosobeast Annotation Tool
+      </h1>-->
+      <p>
+      To initialize the tool upload your intonation data and its 2D distribution in a CSV file as outlined in the documentation.
+      </p>
+      <p>
+      <form method="POST" enctype="multipart/form-data" id='upload_data'>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="file" name="file">
+        <br>
+        <p>
+        <button class="btn btn-primary" id="upload_data_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="upload_data()">
+          Upload database info CSV</button>
+        <span id="span_data" style="display: inline-block; margin: 0 10px 0 10px;">
+        </span>
+        </p>
+      </form>
+      </p>
 
-                <p>
-                    Provide the labels you want to use for annotating your data.
-                    Optionally, you can specify the color codes for each label.
-                    Alternatively, the tool will automatically color code your data.
-                </p>
-                <p>
-                    <form method="POST" enctype="multipart/form-data" id="upload_labels">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                        <input type="file" name="file">
-                        <br>
-                        <p>
-                            <button class="btn btn-primary" id="upload_labels_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="upload_labels()"
-                                                                                                                                                             >Upload labels CSV</button>
-                            <span id="span_labels" style="display: inline-block; margin: 0 10px 0 10px;"></span>
-                        </p>
-                    </form>
-                </p>
-                <p>
-                    For added functionality upload the audio files referenced in your CSV.
-                </p>
-                <p>
-                    <form method="POST" enctype="multipart/form-data" id="upload_audio">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                        <!-- <input type="file" name="audio_files[]" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" class="form-control TheFiles"/> -->
-                        <input type="file" name="audio_files[]" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" />
-                        <br>
-                        <p>
-                            <button class="btn btn-secondary" id="upload_audio_button" type="button" onclick="upload_audio()" >
-                                Upload audio folder
-                            </button>
-                                <span id="span_audio" style="display: inline-block; margin: 0 10px 0 10px;"></span>
-                        </p>
-                    </form>
-                </p>
+      <p>
+        If pitch data is missing you can calculate the pitch contours using the integrated Pitch Extraction Tool.
+        If you don't have a CSV of your data, the Tool will generate one for you.
+      </p>
+      <p>
+      <!-- <form method="POST" enctype="multipart/form-data" id='pitc_extract'>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="file" name="file">
+        <br>
+        <p> -->
+        <button class="btn btn-secondary" id="pitch_extract_button" type="button" onclick="goto_pitch_extract()">
+          Extract pitch contours</button>
+        <span id="span_pitch_extract" class="text-secondary" style="display: inline-block; margin: 0 10px 0 10px;">Upload (data), audio.</span>
+        </span>
+        <!-- </p> -->
+        <!-- </form> -->
+      </p>
 
-                <p>
-                    To calculate the spread of your intonation data you can use our integrated Data Spread calculation tool.
-                </p>
-                <p>
-                    <button class="btn btn-secondary" id="goto_data_spread_button" type="button" onclick="goto_data_spread()">
-                        Calculate spread
-                    </button>
-                    <span id="span_goto_data_spread" class="text-secondary" style="display: inline-block; margin: 0 10px 0 10px;">Upload data.</span>
-                </p>
+      <p>
+      Provide the labels you want to use for annotating your data.
+      Optionally, you can specify the color codes for each label.
+      Alternatively, the tool will automatically color code your data.
+      </p>
+      <p>
+      <form method="POST" enctype="multipart/form-data" id="upload_labels">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input type="file" name="file">
+        <br>
+        <p>
+        <button class="btn btn-primary" id="upload_labels_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="upload_labels()"
+                                                                                                                                         >Upload labels CSV</button>
+        <span id="span_labels" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+        </p>
+      </form>
+      </p>
+      <p>
+      For added functionality upload the audio files referenced in your CSV.
+      </p>
+      <p>
+      <form method="POST" enctype="multipart/form-data" id="upload_audio">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <!-- <input type="file" name="audio_files[]" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" class="form-control TheFiles"/> -->
+        <input type="file" name="audio_files[]" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" />
+        <br>
+        <p>
+        <button class="btn btn-secondary" id="upload_audio_button" type="button" onclick="upload_audio()" >
+          Upload audio folder
+        </button>
+          <span id="span_audio" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+        </p>
+      </form>
+      </p>
 
-                <p>
-                    If you're ready to go just hit the button below.
-                </p>
-                <p>
-                    <button class="btn btn-danger border-danger bg-danger" id="goto_button" type="button" onclick="goto_tool()">
-                        Go to Prosobeast Annotation Tool
-                    </button>
-                    <span id="span_goto" class="text-danger" style="display: inline-block; margin: 0 10px 0 10px;">Upload data, labels, (audio).</span>
-                </p>
+      <p>
+      To calculate the spread of your intonation data you can use our integrated Data Spread calculation tool.
+      </p>
+      <p>
+      <button class="btn btn-secondary" id="goto_data_spread_button" type="button" onclick="goto_data_spread()">
+        Calculate spread
+      </button>
+      <span id="span_goto_data_spread" class="text-secondary" style="display: inline-block; margin: 0 10px 0 10px;">Upload data.</span>
+      </p>
 
-        </div>
-    </div>
+      <p>
+      If you're ready to go just hit the button below.
+      </p>
+      <p>
+      <button class="btn btn-danger border-danger bg-danger" id="goto_button" type="button" onclick="goto_tool()">
+        Go to Prosobeast Annotation Tool
+      </button>
+      <span id="span_goto" class="text-danger" style="display: inline-block; margin: 0 10px 0 10px;">Upload data, labels, (audio).</span>
+      </p>
+
+  </div>
+</div>
 </p>
 {% endblock %}
 {% block endscript %}
 <script type="text/javascript">
+  var data_uploaded = ({{ data_uploaded }} == true);
+  var labels_uploaded = ({{ labels_uploaded }} == true);
+  var audio_uploaded = ({{ audio_uploaded }} == true);
+  var f0s_calculated = ({{f0s_calculated}} == true);
+  var locations_calculated = ({{locations_calculated}} == true);
 
-    var data_uploaded = ({{ data_uploaded | safe }} == 'true');
-    var labels_uploaded = ({{ labels_uploaded | safe }} == 'true');
-    var audio_uploaded = ({{ audio_uploaded | safe }} == 'true');
-    var goto_ok = check_uploads();
-    var goto_data_ok = check_uploads();
+  var goto_ok = check_uploads();
+  var goto_data_ok = check_uploads();
+  var goto_pitch_extract_ok = check_uploads_pitch_extract();
 
-    function upload_data(){
-        var fd = new FormData($('#upload_data')[0]);
-        fd.append("file", $('input[type=file]')[0].files[0]);
-        var button = $("#upload_data_button");
-        var span = $("#span_data");
-        data_uploaded = upload_formdata_ajax(fd, "/init_upload_data", button, span, data_uploaded)
-        goto_ok = check_uploads();
-        goto_data_ok = check_data_upload();
+  function upload_data(){
+      var fd = new FormData($('#upload_data')[0]);
+      fd.append("file", $('input[type=file]')[0].files[0]);
+      var button = $("#upload_data_button");
+      var span = $("#span_data");
+      data_uploaded = upload_formdata_ajax(fd, "/init_upload_data", button, span, data_uploaded)
+      goto_ok = check_uploads();
+      goto_data_ok = check_data_upload();
+      goto_pitch_extract_ok = check_uploads_pitch_extract();
     };
 
-    function upload_labels(){
-        var fd = new FormData($('#upload_labels')[0]);
-        fd.append("file", $('input[type=file]')[0].files[0]);
-        var button = $("#upload_labels_button");
-        var span = $("#span_labels");
-        labels_uploaded = upload_formdata_ajax(fd, "/init_upload_labels", button, span, labels_uploaded)
-        goto_ok = check_uploads();
+  function upload_labels(){
+      var fd = new FormData($('#upload_labels')[0]);
+      fd.append("file", $('input[type=file]')[0].files[0]);
+      var button = $("#upload_labels_button");
+      var span = $("#span_labels");
+      labels_uploaded = upload_formdata_ajax(fd, "/init_upload_labels", button, span, labels_uploaded)
+      goto_ok = check_uploads();
     };
 
-    function upload_audio(){
-        var fd = new FormData($('#upload_audio')[0]);
-        fd.append("file", $('input[type=file]')[0].files[0]);
-        var button = $("#upload_audio_button");
-        var span = $("#span_audio");
-        audio_uploaded = upload_formdata_ajax(fd, "/init_upload_audio", button, span, audio_uploaded)
-        goto_ok = check_uploads();
+  function upload_audio(){
+      var fd = new FormData($('#upload_audio')[0]);
+      fd.append("file", $('input[type=file]')[0].files[0]);
+      var button = $("#upload_audio_button");
+      var span = $("#span_audio");
+      audio_uploaded = upload_formdata_ajax(fd, "/init_upload_audio", button, span, audio_uploaded)
+      goto_ok = check_uploads();
+      goto_data_ok = check_data_upload();
+      goto_pitch_extract_ok = check_uploads_pitch_extract();
     };
 
-    function goto_tool(){
-        goto_ok = check_uploads();
-        if (goto_ok) {
-            window.location.replace("/")
+  function goto_tool(){
+      goto_ok = check_uploads();
+      if (goto_ok) {
+          window.location.replace("/")
         }
     };
 
-    function goto_data_spread(){
-        goto_data_ok = check_data_upload();
-        if (goto_data_ok) {
-            console.log('going to data spread')
-            window.location.replace("/data_spread")
+  function goto_data_spread(){
+      goto_data_ok = check_data_upload();
+      if (goto_data_ok) {
+          console.log('going to data spread')
+          window.location.replace("/data_spread")
         }
     };
 
-    function check_data_upload(){
-        var button = $("#goto_data_spread_button");
-        var span = $("#span_goto_data_spread");
-        var button_data = $("#upload_data_button");
-        var span_data = $("#span_data");
+  function goto_pitch_extract(){
+      goto_pitch_extract_ok = check_uploads_pitch_extract();
+      if (goto_pitch_extract_ok) {
+          console.log('going to pitch extract')
+          window.location.replace("/pitch_extract")
+        }
+    };
 
-        console.log("data_uploaded " + data_uploaded);
-        if (!data_uploaded) {text = 'Upload data.';
+  function check_data_upload(){
+      var button = $("#goto_data_spread_button");
+      var span = $("#span_goto_data_spread");
+      var button_data = $("#upload_data_button");
+      var span_data = $("#span_data");
+
+      console.log("data_uploaded " + data_uploaded);
+      if (!data_uploaded) {text = 'Upload data.';
         } else {
             text = '';
-        };
-        if (data_uploaded) {
-            to_green(button)
-            span.removeClass("text-danger");
-            span.addClass("text-secondary");
-            to_green(button_data)
-            span_data.removeClass("text-danger");
-            span_data.addClass("text-secondary");
+          };
+      if (data_uploaded) {
+          to_green(button)
+          span.removeClass("text-danger");
+          span.addClass("text-secondary");
+          to_green(button_data)
+          span_data.removeClass("text-danger");
+          span_data.addClass("text-secondary");
         } else {
             to_gray(button)
             span.removeClass("text-secondary");
@@ -168,72 +200,121 @@
             to_gray(button_data)
             span_data.removeClass("text-secondary");
             span_data.addClass("text-danger");
-        }
-        span.text(text);
-        return data_uploaded  // if true allow going to the tool
+          }
+      span.text(text);
+      return data_uploaded  // if true allow going to the tool
     };
 
-    function check_labels_upload(){
-        var button_labels = $("#upload_labels_button");
-        var span_labels = $("#span_labels");
-        console.log("labels_uploaded " + labels_uploaded);
-        if (labels_uploaded) {
-            to_green(button_labels)
-            span_labels.removeClass("text-danger");
-            span_labels.addClass("text-secondary");
+  function check_labels_upload(){
+      var button_labels = $("#upload_labels_button");
+      var span_labels = $("#span_labels");
+      console.log("labels_uploaded " + labels_uploaded);
+      if (labels_uploaded) {
+          to_green(button_labels)
+          span_labels.removeClass("text-danger");
+          span_labels.addClass("text-secondary");
         } else {
             to_gray(button_labels)
             span_labels.removeClass("text-secondary");
             span_labels.addClass("text-danger");
-        }
+          }
     };
 
-    function check_audio_upload(){
-        var button_audio = $("#upload_audio_button");
-        var span_audio = $("#span_audio");
-        console.log("audio_uploaded " + audio_uploaded);
-        if (audio_uploaded) {
-            to_green(button_audio)
-            span_audio.removeClass("text-danger");
-            span_audio.addClass("text-secondary");
+  function check_audio_upload(){
+      // var button = $("#goto_pitch_extract_button");
+      // var span = $("#span_pitch_extract");
+      var button_audio = $("#upload_audio_button");
+      var span_audio = $("#span_audio");
+
+      console.log("audio_uploaded " + audio_uploaded);
+      if (!audio_uploaded) {text = 'Upload audio.';
         } else {
+            text = '';
+          };
+      if (audio_uploaded) {
+          // to_green(button)
+          // span.removeClass("text-danger");
+          // span.addClass("text-secondary");
+          to_green(button_audio)
+          span_audio.removeClass("text-danger");
+          span_audio.addClass("text-secondary");
+        } else {
+            // to_gray(button)
+            // span.removeClass("text-secondary");
+            // span.addClass("text-danger");
             to_gray(button_audio)
             span_audio.removeClass("text-secondary");
             span_audio.addClass("text-danger");
-        }
+          }
+      // span.text(text);
+      return data_uploaded  // if true allow going to the tool
     };
 
-    function check_uploads(){
-        var text = '';
-        var button = $("#goto_button");
-        var span = $("#span_goto");
-        console.log("data_uploaded " + data_uploaded);
-        if (!data_uploaded) {text = ' data,' };
-        if (!labels_uploaded) {text = text + ' labels,' };
-        if (!audio_uploaded) {text = text + ' (audio),' };
-        if (text.length > 0) {
-            text = 'Upload' + text
-            text = text.substr(0, text.length-1) + '.'
+  function check_uploads(){
+      var text = '';
+      var text_calc = '';
+      var button = $("#goto_button");
+      var span = $("#span_goto");
+      console.log("data_uploaded " + data_uploaded);
+      if (!data_uploaded) {text = ' data,' };
+      if (!labels_uploaded) {text = text + ' labels,' };
+      if (!audio_uploaded) {text = text + ' (audio),' };
+      if (text.length > 0) {
+          text = 'Upload' + text
+          text = text.substr(0, text.length-1) + '.'
         }
-        var pass = data_uploaded & labels_uploaded
-        if (pass) {
-            to_green(button)
-            span.removeClass("text-danger");
-            span.addClass("text-secondary");
+      if (!f0s_calculated) {text_calc = ' f0s,' };
+      if (!locations_calculated) {text_calc = text_calc + ' data spread.' };
+      if (text_calc.length > 0) {
+          text_calc = ' Calculate' + text_calc
+          text_calc = text_calc.substr(0, text_calc.length-1) + '.'
+        }
+      text = text + text_calc
+      var pass = data_uploaded & labels_uploaded & f0s_calculated & locations_calculated
+      if (pass) {
+          to_green(button)
+          span.removeClass("text-danger");
+          span.addClass("text-secondary");
         } else {
             to_red(button)
             span.removeClass("text-secondary");
             span.addClass("text-danger");
-        }
-        span.text(text);
-        return pass  // if true allow going to the tool
+          }
+      span.text(text);
+      return pass  // if true allow going to the tool
     };
 
-    window.onload = function check_all(){
-        check_data_upload();
-        check_labels_upload();
-        check_audio_upload();
-        check_uploads();
+  function check_uploads_pitch_extract(){
+      // check uploads for going to pitch extract tool
+      var text = '';
+      var button = $("#pitch_extract_button");
+      var span = $("#span_pitch_extract");
+      console.log("data_uploaded " + data_uploaded);
+      if (!data_uploaded) {text = ' (data),' };
+      if (!audio_uploaded) {text = text + ' audio,' };
+      if (text.length > 0) {
+          text = 'Upload' + text
+          text = text.substr(0, text.length-1) + '.'
+        }
+      var pass = audio_uploaded
+      if (pass) {
+          to_green(button)
+          span.removeClass("text-danger");
+          span.addClass("text-secondary");
+        } else {
+            to_gray(button)
+            span.removeClass("text-secondary");
+            span.addClass("text-danger");
+          }
+      span.text(text);
+      return pass  // if true allow going to the tool
+    };
+
+  window.onload = function check_all(){
+      check_data_upload();
+      check_labels_upload();
+      check_audio_upload();
+      check_uploads();
     }
 </script>
 {% endblock %}

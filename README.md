@@ -96,7 +96,48 @@ If color codes are not provided, the tool will automatically generate ones, fixi
 The init screen also allows you to optionally upload an audio folder containing the files referenced in your CSV. 
 This will allow playback of the audio files in the interactive visualisation.
 
-## Intonation Contour Distribution
+## Pitch Extraction Tool
+
+The annotation tool integrates a Pitch Extraction Tool.
+
+<img src="figures/pitch_screen.png" width="900px"/>
+
+The pitch extraction tool optionally takes as input a CSV file describing the database, 
+the audio recordings and corresponding TextGrid annotations.
+
+The CSV file has at least a column `file` containing the filenames.
+Optionally it also includes `info` and `label` columns for use later in 
+the annotation tool.
+
+If the CSV file is not provided, one is created by the tool and populated with the names
+of the audio files in the uploaded audio folder.
+
+The TextGrid annotations need to have at least two tiers:
+    1. phones - holding the phonetic transcription
+    2. woi - marking the start and end times of the Words of Interest
+
+The tool extracts the pitch values from the Nuclei of Interest (NOI), defined as
+the vowel regions in the WOIs.  Vowels are matched with a RegEx that is to be
+provided by the user. In its default setting, the tool searches for phone transcriptions
+that end with a numbered stress mark as used in CMUdict and [ARPABET](https://en.wikipedia.org/wiki/ARPABET).
+
+It is important that the audio filenames contain a speaker ID to be used in the
+pitch extraction process. The tool extracts the speaker IDs using a RegEx
+provided by the user. The default settings is customized for the [sample dataset](#sample_dataset)
+provided with the tool.
+
+The pitch extraction process runs two iterations as suggested by [Hirst](https://uk.groups.yahoo.com/neo/groups/praat-users/conversations/topics/3472?guce_referrer=aHR0cDovL3d3dy5wcmFhdHZvY2FsdG9vbGtpdC5jb20vZXh0cmFjdC1waXRjaC5odG1s&guce_referrer_sig=AQAAAIDU5m6QVh0fVdsdE0b2etWRi49u3PKIN2BLKLWeuqlPrqXlo1Nn_TouJlGByEa361pcFeAnN6DWEbBvpd4ElCouJ0fD7eRiNz1-c_du6Psv3Gn4NXaCe62oQ8DCUa-HMspxd0d432ABbpukit0deIPiTc9Ba61WnenR24Kb66V2).
+In the first iteration looser bounds on the minimum and maximum f0 are used.
+These are then constricted based per speaker and a second iteration is run.
+Pitch extraction is done using the [Kaldi](http://kaldi-asr.org/) Pitch Extractor.
+At the end good pitch contours are selected based on the Probability of Voicing 
+(POV) and they sampled at the vowel nuclei in the words of interest annotated 
+in the `TextGrid` annotations.
+
+More details as well as sample plots are given in the tool's
+[README](./pitch_extract_tool/README.md).
+
+## Data Spread Calculation Tool
 
 The annotation tool integrates a data spread calculation tool.
 
@@ -132,15 +173,19 @@ The pitch contours have been extracted in 2 iterations and have been sampled at 
 
 The tool is described in this paper:
 
-- Branislav Gerazov and Michael Wagner, "ProsoBeast Prosody Annotation Tool," in Proceedings of Interspeech 2021, Aug 30 - Sep 3, Brno, Czechia, 2021. Preprint available on arXiv: https://arxiv.org/abs/2104.02397
+- Branislav Gerazov and Michael Wagner, "ProsoBeast Prosody Annotation Tool," in Proceedings of Interspeech 2021, Aug 30 - Sep 3, Brno, Czechia, pp. 2621--2625, 2021. 
+
+Paper available through [ISCA](https://www.isca-speech.org/archive/interspeech_2021/gerazov21_interspeech.html) and [arXiv](https://arxiv.org/abs/2104.02397).
 
 To cite you can use:
 ```bibtex
-@article{gerazov2021prosobeast,
-  title={ProsoBeast Prosody Annotation Tool},
-  author={Gerazov, Branislav and Wagner, Michael},
-  booktitle={Proceedings of INTERSPEECH},
-  year={2021}
+@inproceedings{gerazov21prosobeast,
+  author={Branislav Gerazov and Michael Wagner},
+  title={{ProsoBeast Prosody Annotation Tool}},
+  year=2021,
+  booktitle={Proc. Interspeech 2021},
+  pages={2621--2625},
+  doi={10.21437/Interspeech.2021-304}
 }
 
 ```

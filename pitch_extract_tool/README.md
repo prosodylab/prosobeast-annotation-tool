@@ -15,14 +15,15 @@ annotations.
     1. `phones`
     2. `woi` - i.e. Words of Interest
 
-The tool extracts the pitch values from the Nuclei of Interest (NOI), defined as
-the vowel regions in the WOIs. Vowels are matched with a RegEx, currently
-searching for a numbered stress mark at the end of the phone label as used in
-the CMUdict and ARPABET.
+The tool extracts the pitch values from the Nuclei of Interest (NOIs), defined as
+the vowel regions in the WOIs. Vowels are matched with a RegEx that can be
+customized by the user. By default it's searching for a numbered stress mark at 
+the end of the phone label as used in the CMUdict and [ARPABET](https://en.wikipedia.org/wiki/ARPABET).
 
 The pitch is extracted in two passes in which the min and max pitch bounds are
-recalculated from a more generous range to a more restrictive range based on Hirst's suggested [approach](#hirst-bounds).
-Good contours are selected based on a percentage of the Probability of Voicing (POV) values in the NOIs being above the threshold.
+recalculated from a more generous range to a more restrictive range based on Hirst's 
+suggested [approach](#hirst-bounds).  Good contours are selected based on a percentage 
+of the Probability of Voicing (POV) values in the NOIs being above the threshold.
 
 ## Code Structure
 
@@ -65,6 +66,9 @@ The results here have been obtained when running the Pitch Extract Tool on the s
 - POV percentage threshold of 0.5,
 - minimum pitch for the initial pass of 75 Hz,
 - maximum pitch for the initial pass of 600 Hz.
+
+The utterances shown in the sample plots and their TextGrids are also included
+in the folder `./sample_data`
 
 ### Two pass f0
 

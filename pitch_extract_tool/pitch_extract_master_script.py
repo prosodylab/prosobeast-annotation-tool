@@ -46,7 +46,7 @@ Notes:
     https://uk.groups.yahoo.com/neo/groups/praat-users/conversations/topics/3472?guce_referrer=aHR0cDovL3d3dy5wcmFhdHZvY2FsdG9vbGtpdC5jb20vZXh0cmFjdC1waXRjaC5odG1s&guce_referrer_sig=AQAAAIDU5m6QVh0fVdsdE0b2etWRi49u3PKIN2BLKLWeuqlPrqXlo1Nn_TouJlGByEa361pcFeAnN6DWEbBvpd4ElCouJ0fD7eRiNz1-c_du6Psv3Gn4NXaCe62oQ8DCUa-HMspxd0d432ABbpukit0deIPiTc9Ba61WnenR24Kb66V2
 
 - use the bounds to extract the pitch using Kaldi,
-- plot with spectrogram, annotations and noi on plots.
+- the tool plots with spectrogram, annotations and noi on plots.
 
 Some of the code is taken from previous work on ProsoDeep.
 
@@ -55,9 +55,7 @@ Created on Fri Mar 01 2019
 @author: Branislav Gerazov
 """
 import numpy as np
-from matplotlib import pyplot as plt
 import pandas as pd
-import seaborn as sns
 from scipy.interpolate import interp1d
 import pickle
 from collections import namedtuple
@@ -67,7 +65,6 @@ from natsort import natsorted
 from tqdm import tqdm
 import re
 import tgt  # textgrid tools
-from shutil import copyfile
 import pitch_extract_utils as utils
 import json
 
@@ -77,6 +74,7 @@ data_path = "../dataset_sample"
 csv_name = f"{data_path}/prosobeast_bare_test.csv"
 audio_path = f"{data_path}/audio"
 textgrid_path = f"{data_path}/textgrids"
+kaldi_path = "./bin"
 
 # output paths
 good_csv_name = f"{data_path}/prosobeast_good_f0s.csv"
@@ -141,17 +139,14 @@ if os.path.isfile(csv_name):
     df_csv = pd.read_csv(csv_name)
     file_names = df_csv.file.tolist()
     # check for consistency
-    for wav_name in wav_names:
-        if wav_name.replace(".wav", "") not in file_names:
-            print(f"Warning: {wav_name} not found in {csv_name}!")
-    for file_name in file_names:
-        if file_name + ".wav" not in wav_names:
-            print(f"Warning: {file_name} not found in audio path!")
+    utils.check_consistency(wav_names, file_names, raise_error=True)
 else:
     print(f"> csv file {csv_name} not found! Generating one ...")
     df_csv = pd.DataFrame(columns="file info label".split())
     file_names = [wav_name.replace(".wav", "") for wav_name in wav_names]
     df_csv.file = file_names
+    df_csv.info = ""
+    df_csv.label = ""
     df_csv.to_csv(csv_name)
 
 # %% 1. Kaldi first pass to find min and max
@@ -190,8 +185,6 @@ if do_1st_pass:
         row = pd.Series(data, index=columns)
         df_f0_params = df_f0_params.append(row, ignore_index=True)
         # break  # debug
-    speakers = df_f0_params.speaker.tolist()
-    n_speakers = len(speakers)
 
     pkl_name = f"{pkl_path}/df_f0_params.pkl"
     with open(pkl_name, "wb") as f:
@@ -204,11 +197,12 @@ if do_1st_pass:
     for (
             __, file_name, speaker, wav_name, textgrid_name,
             start_time, end_time, start_phones, end_phones
-            ) in tqdm(df_f0_params.itertuples(), total=len(df_f0_params), ncols=90):
-        # debug
-        # __, __, speaker, wav_name, textgrid_name, start_time, end_time = data_files.itertuples().__next__()
-        t, f0, f0_log, f0_filt, f0_log_filt, pov = utils.kaldi_extract_pitch(
-                audio_path, wav_name, f0min=f0_min_init, f0max=f0_max_init)
+            ) in tqdm(
+                df_f0_params.itertuples(), total=len(df_f0_params), ncols=90
+                ):
+        t, f0, __, __, __, pov = utils.kaldi_extract_pitch(
+            kaldi_path, audio_path, wav_name, f0min=f0_min_init, f0max=f0_max_init
+            )
         # trim
         i_start = np.where(t > start_phones)[0][0]
         i_end = np.where(t < end_phones)[0][-1]
@@ -341,14 +335,14 @@ if do_2nd_pass:
     for (
             __, file_name, speaker, wav_name, textgrid_name,
             start_time, end_time, start_phones, end_phones
-            ) in tqdm(df_f0_params.itertuples(), total=len(df_f0_params), ncols=90):
-        # debug
-        # __, __, speaker, wav_name, textgrid_name, start_time, end_time = list(data_files.itertuples())[0]
+            ) in tqdm(
+                df_f0_params.itertuples(), total=len(df_f0_params), ncols=90
+                ):
         f0_min_speaker = data_f0_bounds_hirst.loc[speaker, "kaldi_min"]
         f0_max_speaker = data_f0_bounds_hirst.loc[speaker, "kaldi_max"]
-        t, f0, f0_log, f0_filt, f0_log_filt, pov = utils.kaldi_extract_pitch(
-                audio_path, wav_name,
-                f0min=f0_min_speaker, f0max=f0_max_speaker)
+        t, f0, __, __, __, pov = utils.kaldi_extract_pitch(
+            kaldi_path, audio_path, wav_name, f0min=f0_min_speaker, f0max=f0_max_speaker
+            )
         # trim
         i_start = np.where(t > start_phones)[0][0]
         i_end = np.where(t < end_phones)[0][-1]
@@ -460,8 +454,6 @@ for __, file_name, speaker, wav_name, textgrid_name, __, __, __, __ in tqdm(
     f0s = f0s_file_kaldi_2nd[file_name]
     ts = ts_file_kaldi_2nd[file_name]
     noi_povs = noi_povs_kaldi_2nd[file_name]  # list of povs
-    f0_min = data_f0_bounds_hirst.loc[speaker, "kaldi_min"]
-    f0_max = data_f0_bounds_hirst.loc[speaker, "kaldi_max"]
     noi_bounds = noi_bounds_files[file_name]
     if n_nois is None or len(noi_povs) == n_nois:
         # POV checks
