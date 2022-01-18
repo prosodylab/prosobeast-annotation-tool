@@ -1,6 +1,6 @@
 # Prosody extraction tool
 
-Extract pitch using Kaldi pitch extractor and sample Regions of Interest using
+Extract duration and pitch using Kaldi pitch extractor and sample Regions of Interest using
 `TextGrid` annotations.
 
 The tool takes as input a `csv` file (optional), the audio files and `TextGrid`
@@ -15,7 +15,7 @@ annotations.
     1. `phones`
     2. `woi` - i.e. Words of Interest
 
-The tool extracts the pitch values from the Nuclei of Interest (NOIs), defined as
+The tool extracts the duration and pitch values from the Nuclei of Interest (NOIs), defined as
 the vowel regions in the WOIs. Vowels are matched with a RegEx that can be
 customized by the user. By default it's searching for a numbered stress mark at 
 the end of the phone label as used in the CMUdict and [ARPABET](https://en.wikipedia.org/wiki/ARPABET).
