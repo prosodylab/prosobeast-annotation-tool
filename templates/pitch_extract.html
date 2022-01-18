@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% block head %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %}
+{% block content %}
+<p>
+</p>
+<br>
+<p>
+<div class="row justify-content-left">
+  <div class="col-1">
+  </div>
+  <div class="col-6">
+    <p>
+    {% if data_present %}
+    A CSV file describing your dataset was uploaded.
+    The tool will add a f0 column to it with the extracted pitch contours.
+    </p>
+    <p>
+    <!-- Warning! If one is already present it will be replaced with the extracted data. -->
+    {% else %}
+    No CSV file describing your dataset was uploaded, so the tool will generate one for you.
+    </p>
+    <p>
+    <!-- Warning! The CSV file will only contain filenames and no information on the conditions used for the recording. -->
+    {% endif %}                              
+    </p>
+    <p>
+    <!-- To get the best performance it is important that the filenames contain a Speaker ID to be used for optimising the boundaries for the pitch extraction process. -->
+    </p>
+    <p>
+
+    <p>
+    Please select the path to your TextGrid annotations. 
+    The TextGrid annotations need to have at least two tiers: phones and woi (Words of Interest).
+    </p>
+    <p>
+    <form method="POST" enctype="multipart/form-data" id="upload_textgrid">
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+      <input type="file" name="textgrid_files[]" id="files" multiple="" directory="" webkitdirectory="" mozdirectory="" />
+      <br>
+      <p>
+      <button class="btn btn-primary" id="upload_textgrid_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="upload_textgrid()" >
+        Upload TextGrid folder
+      </button>
+        <span id="span_textgrid" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+      </p>
+    </form>
+    </p>
+
+    <p>
+    Pitch extraction parameter settings. 
+    <!-- More settings can be accessed by editing the code. -->
+    </p>
+    <p>
+    <form method="POST" enctype="multipart/form-data" id='extract_pitch'>
+      <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+      <div class="row" style="margin-left: 15px;">
+        <div class="column" style="margin-right: 20px;">
+          <label for="re_speaker">re_speaker - RegEx for extracting speaker ID from filename:</label><br>
+          <input type="text" id="re_speaker" name="opts[]" value="contour_([0-9]+?)_"><br>   
+          <br>
+          <label for="re_vowels">re_vowels - RegEx for detecting vowels in phone tier in TextGrid annotations:</label><br>
+          <input type="text" id="re_vowels" name="opts[]" value="[0-2]$"><br>   
+          <br>
+          <label for="f0_min_init ">f0_min_init - initialisation of minimum pitch bound in Hz:</label><br>
+          <input type="text" id="f0_min_init" name="opts[]" value="60"><br>   
+          <br>
+          <label for="f0_max_init">f0_max_init - initialisation of maximum pitch bound in Hz:</label><br>
+          <input type="text" id="f0_max_init" name="opts[]" value="750"><br>   
+          <br>
+          <label for="n_samples">n_samples - number of samples to extract at each NOI:</label><br>
+          <input type="text" id="n_samples" name="opts[]" value="5"><br>   
+          <br>
+        </div>
+      </div>
+
+      <p>
+      If you're ready to go just hit the button below.
+      </p>
+      <p>
+      <div class="row" style="margin-left: 5px;">
+        <div class="column" style="margin-right: 20px;">
+          <button class="btn btn-secondary border-secondary bg-secondary" id="pitch_extract_button" type="button" onclick="extract_pitch()">
+            Extract pitch
+          </button>
+        </div>
+        <div class="column">
+          <img
+              id="loading_pitch_extract"
+              src="{{ url_for('static', filename='mit_loader.gif') }}" 
+              style="display: none;"
+              width="20px"
+              />
+        </div>
+        <div class="column">
+          <span id="span_pitch_extract" class="text-danger" style="display: inline-block; margin: 0 10px 0 10px;">Upload TextGrids.</span>
+        </div>
+      </div>
+      </p>
+    <br>
+
+    <div class="row" style="margin-left: 5px;">
+      <div class="column" style="margin-right: 20px;">
+        <button class="btn btn-secondary border-secondary bg-secondary" id="download_data_button" type="button" onclick="download_data()">
+          Download CSV
+        </button>
+      </div>
+      <div class="column">
+        <span id="span_download_data" class="text-danger" style="display: inline-block; margin: 0 10px 0 10px;"></span>
+      </div>
+    </div>
+
+    <br>
+    <!-- <div class="row" style="margin-left: 5px;"> -->
+      <button class="btn btn-primary" id="goback_button" type="button" style="background-color: #28a5e0; border-color: #1982b3" onclick="go_back()">
+        Go back to init page
+      </button>
+    <!-- </div> -->
+    </form>
+  </div>
+</div>
+</p>
+{% endblock %}
+{% block endscript %}
+<script type="text/javascript">
+  var textgrid_uploaded = ("{{ textgrid_uploaded | safe }}" == 'True');
+  var pitch_extracted = false;
+
+  function upload_textgrid(){
+      var fd = new FormData($('#upload_textgrid')[0]);
+      fd.append("file", $('input[type=file]')[0].files[0]);
+      var button = $("#upload_textgrid_button");
+      var span = $("#span_textgrid");
+      textgrid_uploaded = upload_formdata_ajax(
+          fd, "/pitch_extract_upload_textgrid", button, span, textgrid_uploaded
+        );
+      check_textgrid_upload();
+    };
+
+  function extract_pitch(){
+      extract_pitch_ok = check_textgrid_upload();
+      console.log("extract_pitch_ok " + extract_pitch_ok)
+      if (extract_pitch_ok) {
+        var inputs = document.getElementsByName("opts[]");
+        console.log(inputs)
+        var opts = {};
+        console.log(opts)
+        for (var i = 0; i < inputs.length; i++) {
+            console.log(i)
+            console.log(inputs[i].id)
+            console.log(inputs[i].value)
+            opts[inputs[i].id] = inputs[i].value;
+          };
+        console.log(opts)
+        var button = $("#pitch_extract_button");
+        var span = $("#span_pitch_extract");
+        var loading = document.getElementById("loading_pitch_extract");
+        loading.style.display = "block";
+        span.text('Calculating ...')
+        if (extract_pitch_ok) {
+            console.log("calling ajax")
+            pitch_extract_ajax(opts, "/extract_pitch", button, span, loading);
+          } 
+        }
+    };
+
+  function pitch_extract_ajax(opts, url, element, span, loading){
+      var download_button = $('#download_data_button')
+      var span_download_data = $('#span_download_data')
+      console.log("sending ajax")
+      $.ajax({
+          url: url,
+          type: "POST",
+          data: JSON.stringify(opts),
+          async: false,
+          processData: false,
+          contentType: 'UTF-8',
+          cache: false,
+          success: function(response) {
+              console.log(response);
+              loading.style.display = "none";
+              span.text(response);
+              if (response.startsWith("Done!")){
+                  pitch_extracted = true;
+                  to_green(element);
+                  span.removeClass("text-danger");
+                  span.addClass("text-success");
+                  // also do this for the download CSV button
+                  to_green(download_button);
+                  span_download_data.text("");
+
+                } else {
+                    to_red(element);
+                    span.removeClass("text-success");
+                    span.addClass("text-danger");
+                  };
+            },
+          error: function(jqXHR, textStatus, errorMessage) {
+              console.log(errorMessage); // 
+              span.text(errorMessage);
+              to_red(element)
+              span.removeClass("text-success");
+              span.addClass("text-danger");
+            }
+        });
+      // console.log(uploaded);
+    };
+
+    function download_data(){
+        var button = $('#download_data_button')
+        var span = $('#span_download_data')
+        if (pitch_extracted) {
+          span.text("");
+          window.location.href = "/download";
+        } else {
+          to_red(button)
+          span.text("Extract pitch.");
+          }
+    };
+
+
+  function check_textgrid_upload(){
+      var button = $("#pitch_extract_button");
+      var span = $("#span_pitch_extract");
+      var button_textgrid = $("#upload_textgrid_button");
+      var span_textgrid = $("#span_textgrid");
+      console.log("textgrid_uploaded " + textgrid_uploaded);
+      if (textgrid_uploaded) {
+          span.text("");
+          to_green(button)
+          to_green(button_textgrid)
+          span.removeClass("text-danger");
+          span.addClass("text-secondary");
+        } else {
+            span.removeClass("text-secondary");
+            span.addClass("text-danger");
+          }
+      return textgrid_uploaded
+    };
+
+  function go_back() {
+      // window.history.back();
+      window.location.replace('/init')
+    }
+
+  window.onload = function check_all(){
+      check_textgrid_upload();
+    }
+</script>
+{% endblock %}

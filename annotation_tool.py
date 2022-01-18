@@ -254,7 +254,11 @@ def deletedb_init():
         print('sqlite3 database found will remove it ...')
         # before uploading new data delete old db
         os.remove('prosobeast.sqlite3')
+    if os.path.isfile('prosobeast.csv'):
+        print('local csv save found will remove it ...')
         os.remove('prosobeast.csv')
+    if os.path.isfile('lavels.csv'):
+        print('local labels csv save found will remove it ...')
         os.remove('labels.csv')
     if os.path.isdir('static/audio'):
         shutil.rmtree('static/audio')
@@ -389,6 +393,8 @@ def extract_pitch():
         # initialise empty locations database
         location_labels = []
         utils.update_locations_db(location_labels, 'locations')
+        # save the csv as well
+        utils.save_csv()
         return Response('Done!')
     else:
         return Response('Wrong request method!')
