@@ -29,6 +29,7 @@ import json
 
 import numpy as np
 import pandas as pd
+from icecream import ic
 
 # methods
 try:  # won't work if there is no sklearn
@@ -44,13 +45,18 @@ except ImportError:
     print('No PyTorch installed!')
 
 
-def load_data(data):
+def load_data(
+        data,
+        use_durs=False,
+        ):
     """Load dataa multi column CSV with all intonation data.
 
     Parameters
     ----------
     data : DataFrame
         Pandas DataFrame of data stored in CSV.
+    use_durs : bool
+        Append durations to f0 data from dataframe. Defaults to False.
 
     Returns
     -------
@@ -63,20 +69,40 @@ def load_data(data):
     """
     data.f0 = data.f0.map(lambda x: json.loads(x))
     f0s = data.f0.tolist()
+    if use_durs:
+        data.dur = data.dur.map(lambda x: json.loads(x))
+        durs = data.dur.tolist()
+        # append the durations to the f0s
+        # calculate the number of samples for the f0s per NOI
+        dur_len = len(durs[0])
+        f0_len = len(f0s[0])
+        n_samples = int(f0_len / dur_len)
+        # check if this holds for all the contours
+        assert all([len(f0) == len(dur) * n_samples for f0, dur in zip(f0s, durs)])
+        # append
+        contours = []
+        for f0, dur in zip(f0s, durs):
+            contour = []
+            for i, dur_i in enumerate(dur):
+                contour += f0[i*n_samples: i*n_samples + n_samples] + [dur_i]
+            contours.append(contour)
+    else:
+        contours = f0s
     # check if all data is the same length
-    lens = np.array([len(f0) for f0 in f0s])
+    lens = np.array([len(contour) for contour in contours])
+    ic(lens)
     if np.all(lens == lens[0]):
-        f0s = np.array(f0s)
+        contours = np.array(contours)
         lens = int(lens[0])
     else:
         # pad to max len
         max_len = lens.max()
-        f0s = np.array([
-            np.pad(f0, (0, max_len - len(f0)), constant_values=np.nan)
-            for f0 in f0s
+        contours = np.array([
+            np.pad(contour, (0, max_len - len(contour)), constant_values=np.nan)
+            for contour in contours
             ])
     labels = data.label.tolist()
-    return f0s, lens, labels
+    return contours, lens, labels
 
 
 def load_label_colors(csv_name):
@@ -92,6 +118,7 @@ def load_label_colors(csv_name):
 def calculate_data_spread(
         data=None,
         choice=None,
+        use_durs=False,
         seed=None,
         ):
     """
@@ -104,6 +131,8 @@ def calculate_data_spread(
     choice : str
         One of the supported methods to use for calculating the data spread.
         Possible choices: PCA, t-SNE, VAE-2D, VAE-4D
+    use_durs : bool
+        Include durations in the modelling process. Defaults to False.
     seed : int
         Random seed to ensure reproducible results.
 
@@ -114,9 +143,12 @@ def calculate_data_spread(
 
     """
 
-    print(f'Calculate data spread {choice}.')
+    print(f'Calculating data spread {choice}.')
+    if use_durs:
+        print(' > Using durations.')
+
     # %% load data
-    f0s, lens, labels = load_data(data)
+    f0s, lens, labels = load_data(data, use_durs=use_durs)
     if isinstance(lens, int):  # same length data
         same_length = True
     else:
