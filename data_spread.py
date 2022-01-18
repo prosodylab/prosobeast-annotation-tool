@@ -29,6 +29,7 @@ import json
 
 import numpy as np
 import pandas as pd
+from icecream import ic
 
 # methods
 try:  # won't work if there is no sklearn
@@ -89,6 +90,7 @@ def load_data(
         contours = f0s
     # check if all data is the same length
     lens = np.array([len(contour) for contour in contours])
+    ic(lens)
     if np.all(lens == lens[0]):
         contours = np.array(contours)
         lens = int(lens[0])

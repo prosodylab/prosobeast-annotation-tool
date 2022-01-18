@@ -12,12 +12,25 @@
   </div>
   <div class="col-8">
     <p>
-    Choose the methods used to calculate the data spread:
+    Choose whether to use the duration in calculating the data spread.
     </p>
+
+      <div class="row" style="margin-left: 5px;">
+        <div class="column" style="margin-right: 20px;">
+          <input type="checkbox" id="dur" name="dur" value="dur">
+             <label for="dur">Use durations</label>
+        </div>
+      </div>
+    <br>
+
     <p>
     <form method="POST" enctype="multipart/form-data" id='calculate_spread'>
       <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
+    <p>
+    Choose the methods used to calculate the data spread:
+    </p>
+    
       <div class="row" style="margin-left: 5px;">
         <div class="column" style="margin-right: 20px;">
           <input type="checkbox" id="pca" name="choices[]" value="pca" onclick="check_clicked()"
@@ -172,10 +185,16 @@
     var choices = ['pca', 'tsne', 'vae2d', 'vae4d', 'rvae10d']
 
     function check_clicked(){
-          var data = { 'choices[]' : []};
+          var data = { "dur": false, "choices[]" : []};
           $(":checked").each(function() {
                 data['choices[]'].push($(this).val());
               });
+          var dur = data['choices[]'][0] === 'dur';
+          console.log('duration', dur);
+          if (dur) {
+                data['choices[]'].splice(0, 1);
+              }
+          data["dur"] = dur;
           var button = $("#calculate_button");
           button.removeClass("bg-success");
           button.removeClass("btn-success");
@@ -197,10 +216,16 @@
         };
 
     function calculate(){
-          var data = { 'choices[]' : []};
+          var data = { "dur": false, "choices[]" : []};
           $(":checked").each(function() {
                 data['choices[]'].push($(this).val());
               });
+          var dur = data['choices[]'][0] === 'dur';
+          console.log('duration', dur);
+          if (dur) {
+                data['choices[]'].splice(0, 1);
+              };
+          data["dur"] = dur;
           var button = $("#calculate_button");
           // clear all spans
           for (var spanref of choices){
@@ -216,21 +241,26 @@
                 loading.style.display = "block";
                 // $('#loading_vae2d').hide()
                 span.text('Calculating ...')
-                calculate_spread_ajax(choice, "/calculate", button, span, loading);
+                calculate_spread_ajax(choice, dur, "/calculate", button, span, loading);
               } 
         };
 
-    function calculate_spread_ajax(choice, url, element, span, loading){
+    function calculate_spread_ajax(choice, dur, url, element, span, loading){
+          data = {"choice": choice, "dur": dur};
+          console.log(data)
+          console.log(JSON.stringify(data))
           $.ajax({
                 url: '/calculate',
                 type: "POST",
-                // data: JSON.stringify(data),
-                data: choice,
+                data: JSON.stringify(data),
                 // async: true,
                 async: false,
                 processData: false,
+                traditional: true,
                 // contentType: 'application/json;charset=UTF-8',
-                contentType: 'UTF-8',
+                // contentType: 'UTF-8',
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
                 cache: false,
                 success: function(response) {
                       console.log(response);

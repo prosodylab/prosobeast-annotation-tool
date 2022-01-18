@@ -312,8 +312,12 @@ def calculate():
     print(location_labels)
     print(f'processing {request.data}')
     if request.method == "POST":
-        choice, use_durs = request.data.decode("utf-8").split()
-        use_durs = use_durs == "True"
+        data = json.loads(request.data.decode("UTF-8"))
+        ic(data)
+        choice = data["choice"]
+        use_durs = data["dur"]
+        ic(choice)
+        ic(use_durs)
         try:
             locs = calculate_data_spread(
                 data=source_df.copy(),
@@ -322,7 +326,7 @@ def calculate():
                 seed=None,
                 )
         except ValueError as e:
-            return Response(str(e))
+            return Response(json.dumps(str(e)))
         # update source_df
         locs['location'] = locs['location'].map(
                 lambda x: json.dumps(x)
@@ -361,9 +365,9 @@ def calculate():
         location_labels += [label]
         print(location_labels)
         utils.update_locations_db(location_labels, 'locations')
-        return Response(f'Done! Generated data spread {label}.')
+        return Response(json.dumps(f'Done! Generated data spread {label}.'))
     else:
-        return Response('No file selected!')
+        return Response(json.dumps('No file selected!'))
 
 
 @app.route('/extract_pitch', methods=['POST'])
