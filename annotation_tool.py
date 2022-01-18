@@ -312,11 +312,13 @@ def calculate():
     print(location_labels)
     print(f'processing {request.data}')
     if request.method == "POST":
-        choice = request.data.decode("utf-8")
+        choice, use_durs = request.data.decode("utf-8").split()
+        use_durs = use_durs == "True"
         try:
             locs = calculate_data_spread(
                 data=source_df.copy(),
                 choice=choice,
+                use_durs=use_durs,
                 seed=None,
                 )
         except ValueError as e:
@@ -334,6 +336,8 @@ def calculate():
             'rvae10d': 'RVAE-10D',
             }
         label = choice_to_label[choice]
+        if use_durs:
+            label += '_dur'
         # if there is already a location column with that name add a counter
         columns = source_df.columns
         count = 0
