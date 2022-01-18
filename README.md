@@ -3,19 +3,20 @@
     <img src="figures/tool_name.svg" width="500px">
 </h1>
 
-**A web app for annotating intonation patterns based on Bokeh and Flask.**
+**A web app for annotating prosody patterns based on Bokeh and Flask.**
 
 <img src="figures/main_screen.png" width="900px"/>
 
 
-The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech intonation data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
+The ProsoBeast Annotation Tool will allow you to view, compare, listen to, and ultimately annotate your speech prosody data using interactive visualisation. The tool runs in a browser on your `localhost`. It uses [Python's scientific ecosystem](https://scipy-lectures.org/) to load and process the data, [Bokeh](https://bokeh.pydata.org/) to visualise the data and render it in [D3.js](https://d3js.org/) for the web app that is based on the lightweight [Flask](https://flask.palletsprojects.com)  web application framework.
 
 Watch the short video demo [here](https://www.youtube.com/embed/I7Wk5zTwbmY).
 
 
 - [Install](#install)
 - [Usage](#usage)
-- [Intonation Contour Distribution](#intonation-contour-distribution)
+- [Prosody Extraction Tool](#prosody-extraction-tool)
+- [Data Spread Calculation Tool](#data-spread-calculation-tool)
 - [Sample Dataset](#sample-dataset)
 - [References](#references)
 - [Contributing](#contributing)
@@ -43,7 +44,7 @@ source venv/bin/activate  # activate environment
 pip install -r requirements.txt  # install dependencies
 ```
 
-In order to use the integrated data spread calculation tool (see [Intonation Contour Distribution](README.md#intonation-contour-distribution)) you need to additionally install:
+In order to use the integrated data spread calculation tool (see [Data Spread Calculation Tool](README.md#data-spread-calculation-tool) you need to additionally install:
 - [scikit-learn](https://scikit-learn.org/stable/) - to calculate the PCA and t-SNE spreads:
 ```
 pip install scikit-learn
@@ -80,14 +81,16 @@ The tool should default to the initialisation screen.
 
 <img src="figures/init_screen.png" width="900px"/>
 
-Here you can upload your intonation data using a CSV file. The CSV file should contain the following list of columns:
+Here you can upload your prosody data using a CSV file. The CSV file should contain the following list of columns:
 - file - the name of the file in your corpus,
 - info - any specifiers for the file you wish to be displayed on mouse hover in the interactive visualisation, e.g. the elicited contour type,
 - label - the given label, it can be left empty in which case the tool assigns it a `No label`,
 - location (optional) - the 2D location of the contour in the intonation space (see [Intonation Contour Distribution](README.md#intonation-contour-distribution)),
-- f0 - a list of the $f_0$ values to be plotted.
+- f0 - a list of the F0 values to be plotted,
+- dur - (optional) a list of the duration values that can be used in the
+Prosody Extraction Tool.
 
-To extract and sample the $f_0$ contours with the Pitch Extraction Tool via the master script `pitch_extract_tool/pitch_extract_master_script.py`.
+To extract the duration and sample the F0 contours with the Prosody Extraction Tool via the master script `pitch_extract_tool/pitch_extract_master_script.py`.
 
 Another CSV file is needed by the system that will specify the label choices you want to use for your data. 
 This CSV file can optionally specify the color codes you want to use for your labels.
@@ -96,13 +99,13 @@ If color codes are not provided, the tool will automatically generate ones, fixi
 The init screen also allows you to optionally upload an audio folder containing the files referenced in your CSV. 
 This will allow playback of the audio files in the interactive visualisation.
 
-## Pitch Extraction Tool
+## Prosody Extraction Tool
 
-The annotation tool integrates a Pitch Extraction Tool.
+The annotation tool integrates a Prosody Extraction Tool.
 
 <img src="figures/pitch_screen.png" width="900px"/>
 
-The pitch extraction tool optionally takes as input a CSV file describing the database, 
+The prosody extraction tool optionally takes as input a CSV file describing the database, 
 the audio recordings and corresponding TextGrid annotations.
 
 The CSV file has at least a column `file` containing the filenames.
@@ -116,7 +119,7 @@ The TextGrid annotations need to have at least two tiers:
     1. phones - holding the phonetic transcription
     2. woi - marking the start and end times of the Words of Interest
 
-The tool extracts the pitch values from the Nuclei of Interest (NOI), defined as
+The tool extracts the pitch values and durations from the Nuclei of Interest (NOI), defined as
 the vowel regions in the WOIs.  Vowels are matched with a RegEx that is to be
 provided by the user. In its default setting, the tool searches for phone transcriptions
 that end with a numbered stress mark as used in CMUdict and [ARPABET](https://en.wikipedia.org/wiki/ARPABET).
@@ -143,7 +146,7 @@ The annotation tool integrates a data spread calculation tool.
 
 <img src="figures/data_screen.png" width="900px"/>
 
-The distribution of the contours in the *intonation space* can be calculated in various ways.
+The distribution of the contours in the *prosody space* can be calculated in various ways.
 If your intonation vectors have fixed length, then you can use [PCA](https://scikit-learn.org/stable/modules/decomposition.html#pca) or even better [t-SNE](https://scikit-learn.org/stable/modules/manifold.html#t-sne).
 For our analyses we use a more complex pipeline in which we first map out a *prosodic latent space* akin to the one defined in the [ProsoDeep project](https://gerazov.github.io/prosodeep/) and then do dimensionality reduction.
 The integrated data spread calculation tool at the moment supports the following algorithms:
@@ -154,6 +157,7 @@ The integrated data spread calculation tool at the moment supports the following
 
 The user is automatically redirected to the data spread calculation tool if no location data is provided in the user table. 
 The tool can also be accessed from the main screen to add new data spreads for the data.
+Using the durations in the calculation is optional.
 
 ## Sample Dataset
 

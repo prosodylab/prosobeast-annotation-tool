@@ -1,4 +1,4 @@
-# Pitch extraction tool
+# Prosody extraction tool
 
 Extract pitch using Kaldi pitch extractor and sample Regions of Interest using
 `TextGrid` annotations.
